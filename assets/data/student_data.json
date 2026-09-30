@@ -1,0 +1,58 @@
+{
+  "student": {
+    "name": "Kadek Adi Saputra",
+    "nim": "2415051005",
+    "program": "Pendidikan Teknik Informatika",
+    "university": "Universitas Pendidikan Ganesha"
+  },
+  "courses": [
+    {
+      "code": "PTI2101",
+      "title": "Pemrograman Mobile",
+      "credits": 3,
+      "status": "Selesai",
+      "grade": "A",
+      "semester": 5
+    },
+    {
+      "code": "PTI2102",
+      "title": "Struktur Data & Algoritma",
+      "credits": 3,
+      "status": "Selesai",
+      "grade": "A",
+      "semester": 3
+    },
+    {
+      "code": "PTI2103",
+      "title": "Rekayasa Perangkat Lunak",
+      "credits": 3,
+      "status": "Selesai",
+      "grade": "A-",
+      "semester": 4
+    },
+    {
+      "code": "PTI2104",
+      "title": "Jaringan Komputer",
+      "credits": 3,
+      "status": "Sedang Diambil",
+      "grade": "-",
+      "semester": 5
+    },
+    {
+      "code": "PTI2105",
+      "title": "Pengolahan Citra Digital",
+      "credits": 2,
+      "status": "Sedang Diambil",
+      "grade": "-",
+      "semester": 5
+    },
+    {
+      "code": "PTI2106",
+      "title": "Kapita Selekta Informatika",
+      "credits": 2,
+      "status": "Rencana",
+      "grade": "-",
+      "semester": 6
+    }
+  ]
+}
