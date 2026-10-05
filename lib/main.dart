@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-// Identitas Mahasiswa (Wajib muncul di UI dan Kode)
+// Identitas Mahasiswa (Wajib)
 const String studentName = 'Kadek Adi Saputra';
 const String studentId = '2415051005';
 
@@ -14,133 +14,151 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Tahap 6 - Scrollable Content & Keyboard',
+      title: 'Tahap 7 - Navigation Push & Pop',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const ScrollableFormPage(),
+      home: const HomePage(),
     );
   }
 }
 
-class ScrollableFormPage extends StatefulWidget {
-  const ScrollableFormPage({super.key});
-
-  @override
-  State<ScrollableFormPage> createState() => _ScrollableFormPageState();
-}
-
-class _ScrollableFormPageState extends State<ScrollableFormPage> {
-  bool _useScroll = true; // Switch untuk menguji dengan atau tanpa SingleChildScrollView
+// -----------------------------------------------------------------
+// 1. SCREEN AWAL: HomePage
+// -----------------------------------------------------------------
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Konten formulir panjang yang melebihi tinggi layar saat keyboard muncul
-    Widget formContent = Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Header Identitas
-          Card(
-            color: Colors.blueGrey.shade50,
-            elevation: 2,
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Tahap 6: Scrollable & Keyboard Handling',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                  const SizedBox(height: 4),
-                  Text('$studentId - $studentName',
-                      style: const TextStyle(fontSize: 13, color: Colors.blueGrey)),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          // Tombol Sakelar untuk demonstrasi
-          SwitchListTile(
-            title: const Text('Gunakan SingleChildScrollView', style: TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text(_useScroll ? 'Aktif: Bebas overflow keyboard' : 'Nonaktif: Rentan overflow keyboard'),
-            value: _useScroll,
-            onChanged: (val) => setState(() => _useScroll = val),
-          ),
-          const Divider(),
-
-          // Field-field input
-          const Text('Field 1: Informasi Akademik', style: TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 6),
-          const TextField(
-            decoration: InputDecoration(
-              labelText: 'Program Studi',
-              hintText: 'Pendidikan Teknik Informatika',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          const Text('Field 2: Nama Mata Kuliah', style: TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 6),
-          const TextField(
-            decoration: InputDecoration(
-              labelText: 'Mata Kuliah',
-              hintText: 'Pemrograman Mobile',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          const Text('Field 3: Masukan / Catatan', style: TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 6),
-          const TextField(
-            maxLines: 3,
-            decoration: InputDecoration(
-              labelText: 'Komentar Pembelajaran',
-              hintText: 'Tuliskan catatan di sini...',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          // Field bagian bawah yang akan tertutup keyboard
-          const Text('Field 4: Target Nilai (Posisi Bawah)', style: TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 6),
-          const TextField(
-            decoration: InputDecoration(
-              labelText: 'Target Grade',
-              hintText: 'A',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          ElevatedButton.icon(
-            icon: const Icon(Icons.save),
-            label: const Text('Simpan Data Formulir'),
-            onPressed: () {
-              FocusScope.of(context).unfocus(); // Menutup keyboard
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Formulir berhasil disimpan!')),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tahap 6 - Scrollable Content'),
-        backgroundColor: Colors.blueGrey,
+        title: const Text('Tahap 7 - Home Page'),
+        backgroundColor: Colors.blue.shade700,
         foregroundColor: Colors.white,
       ),
-      // Kondisi pengujian: dibungkus SingleChildScrollView atau Column polos
-      body: _useScroll ? SingleChildScrollView(child: formContent) : formContent,
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Card Identitas Mahasiswa
+            Card(
+              color: Colors.blue.shade50,
+              elevation: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Praktikum Navigasi Multi-Screen',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Mahasiswa: $studentName ($studentId)',
+                      style: const TextStyle(fontSize: 14, color: Colors.black87),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 32),
+
+            const Text(
+              'Tekan tombol di bawah untuk menambah halaman baru ke atas Navigation Stack menggunakan Navigator.push():',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: Colors.black54),
+            ),
+            const SizedBox(height: 16),
+
+            // Tombol Buka Detail (Navigator.push)
+            ElevatedButton.icon(
+              icon: const Icon(Icons.arrow_forward),
+              label: const Text('Buka Detail Page'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 14),
+              ),
+              onPressed: () {
+                // Menumpuk DetailPage ke atas stack
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const DetailPage(),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// -----------------------------------------------------------------
+// 2. SCREEN KEDUA: DetailPage
+// -----------------------------------------------------------------
+class DetailPage extends StatelessWidget {
+  const DetailPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Detail Page'),
+        backgroundColor: Colors.teal.shade700,
+        foregroundColor: Colors.white,
+        // AppBar secara otomatis menyediakan tombol panah kembali (Navigator.pop)
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Card(
+              color: Colors.teal.shade50,
+              elevation: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text(
+                      'Anda Berada di Halaman Detail!',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    SizedBox(height: 6),
+                    Text(
+                      'Route ini berada di puncak navigation stack. Anda dapat kembali menggunakan tombol back bawaan AppBar atau tombol di bawah.',
+                      style: TextStyle(fontSize: 13, color: Colors.black87),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 32),
+
+            // Tombol Kembali Kustom (Navigator.pop)
+            ElevatedButton.icon(
+              icon: const Icon(Icons.arrow_back),
+              label: const Text('Kembali ke Home (Navigator.pop)'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.teal.shade700,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+              ),
+              onPressed: () {
+                // Menghapus DetailPage dari stack dan kembali ke HomePage
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
