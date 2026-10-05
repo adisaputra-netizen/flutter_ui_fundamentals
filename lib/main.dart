@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// Identitas Mahasiswa (Wajib muncul di UI dan Kode)
 const String studentName = 'Kadek Adi Saputra';
 const String studentId = '2415051005';
 
@@ -13,243 +14,141 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Tahap 3 - LayoutBuilder & Breakpoint',
+      title: 'Tahap 4 - Expanded, Flexible, & Wrap',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const BreakpointShellPage(),
+      home: const FlexWrapDemoPage(),
     );
   }
 }
 
-class BreakpointShellPage extends StatelessWidget {
-  const BreakpointShellPage({super.key});
+class FlexWrapDemoPage extends StatelessWidget {
+  const FlexWrapDemoPage({super.key});
+
+  // Minimal 6 data skills
+  final List<String> skills = const [
+    'Flutter SDK',
+    'Responsive Design',
+    'Expanded & Flex',
+    'Wrap Layout',
+    'MediaQuery',
+    'LayoutBuilder',
+    'Dart OOP',
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tahap 3 - LayoutBuilder'),
-        backgroundColor: Colors.indigo,
+        title: const Text('Tahap 4 - Flex & Wrap'),
+        backgroundColor: Colors.deepPurple,
         foregroundColor: Colors.white,
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          // Breakpoint Praktikum: Compact (<600), Medium (600-839), Expanded (>=840)
-          if (constraints.maxWidth < 600) {
-            return CompactLayout(maxWidth: constraints.maxWidth);
-          } else if (constraints.maxWidth < 840) {
-            return MediumLayout(maxWidth: constraints.maxWidth);
-          } else {
-            return ExpandedLayout(maxWidth: constraints.maxWidth);
-          }
-        },
-      ),
-    );
-  }
-}
-
-// 1. COMPACT LAYOUT (< 600 px) -> 1 Kolom Vertikal, Tema Amber/Orange
-class CompactLayout extends StatelessWidget {
-  final double maxWidth;
-  const CompactLayout({super.key, required this.maxWidth});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Colors.amber.shade50,
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _buildIdentityHeader('Compact (< 600 px)', Colors.orange, maxWidth),
-          const SizedBox(height: 16),
-          Expanded(
-            child: Card(
-              color: Colors.amber.shade100,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header Identitas
+            Card(
+              color: Colors.deepPurple.shade50,
               elevation: 2,
-              child: const Center(
-                child: ListTile(
-                  leading: Icon(Icons.phone_android, size: 40, color: Colors.orange),
-                  title: Text(
-                    'Mode Tampilan Single Column (Phone)',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text('Layout dirancang memanjang vertikal untuk kenyamanan layar kecil satu tangan.'),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  children: [
+                    const Icon(Icons.person, color: Colors.deepPurple),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        '$studentId - $studentName',
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+            const SizedBox(height: 16),
 
-// 2. MEDIUM LAYOUT (600 - 839 px) -> 2 Kolom Berdampingan, Tema Teal
-class MediumLayout extends StatelessWidget {
-  final double maxWidth;
-  const MediumLayout({super.key, required this.maxWidth});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Colors.teal.shade50,
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          _buildIdentityHeader('Medium (600 - 839 px)', Colors.teal, maxWidth),
-          const SizedBox(height: 16),
-          Expanded(
-            child: Row(
-              children: [
-                Expanded(
-                  child: Card(
-                    color: Colors.teal.shade100,
-                    elevation: 2,
-                    child: const Center(
-                      child: ListTile(
-                        leading: Icon(Icons.tablet, size: 40, color: Colors.teal),
-                        title: Text('Kolom 1 (Navigasi/Menu)', style: TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: Text('Tampilan tablet portrait / small tablet.'),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Card(
-                    color: Colors.teal.shade200,
-                    elevation: 2,
-                    child: const Center(
-                      child: ListTile(
-                        leading: Icon(Icons.dashboard, size: 40, color: Colors.teal),
-                        title: Text('Kolom 2 (Konten Utama)', style: TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: Text('Ruang yang lebih lebar memungkinkan 2 kolom aktif.'),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+            // 1. Demonstrasi Expanded dengan Flex 2 : 1
+            const Text(
+              '1. Dua Panel dengan Flex (2 : 1)',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// 3. EXPANDED LAYOUT (>= 840 px) -> 3 Kolom Berdampingan, Tema Indigo/Blue
-class ExpandedLayout extends StatelessWidget {
-  final double maxWidth;
-  const ExpandedLayout({super.key, required this.maxWidth});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Colors.indigo.shade50,
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          _buildIdentityHeader('Expanded (>= 840 px)', Colors.indigo, maxWidth),
-          const SizedBox(height: 16),
-          Expanded(
-            child: Row(
+            const SizedBox(height: 8),
+            Row(
               children: [
-                Expanded(
-                  child: Card(
-                    color: Colors.indigo.shade100,
-                    elevation: 2,
-                    child: const Center(
-                      child: ListTile(
-                        leading: Icon(Icons.view_sidebar, size: 36, color: Colors.indigo),
-                        title: Text('Side Panel', style: TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: Text('Menu samping.'),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
                 Expanded(
                   flex: 2,
-                  child: Card(
-                    color: Colors.indigo.shade200,
-                    elevation: 2,
-                    child: const Center(
-                      child: ListTile(
-                        leading: Icon(Icons.laptop, size: 40, color: Colors.indigo),
-                        title: Text('Workspace Utama', style: TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: Text('Tablet landscape / Laptop / Desktop.'),
-                      ),
+                  child: Container(
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: Colors.deepPurple.shade300,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    alignment: Alignment.center,
+                    child: const Text(
+                      'Flex: 2 (66.6% Ruang)',
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 Expanded(
-                  child: Card(
-                    color: Colors.indigo.shade100,
-                    elevation: 2,
-                    child: const Center(
-                      child: ListTile(
-                        leading: Icon(Icons.info_outline, size: 36, color: Colors.indigo),
-                        title: Text('Info Panel', style: TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: Text('Detail tambahan.'),
-                      ),
+                  flex: 1,
+                  child: Container(
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: Colors.deepPurple.shade100,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    alignment: Alignment.center,
+                    child: const Text(
+                      'Flex: 1 (33.3%)',
+                      style: TextStyle(color: Colors.deepPurple, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
               ],
             ),
-          ),
-        ],
+            const SizedBox(height: 24),
+
+            // 2. Demonstrasi Wrap vs Row
+            const Text(
+              '2. Tag Kemampuan Menggunakan Wrap',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const Text(
+              'Wrap secara otomatis menurunkan chip ke baris berikutnya jika layar sempit:',
+              style: TextStyle(color: Colors.grey, fontSize: 13),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.deepPurple.shade200),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Wrap(
+                spacing: 8.0, // Jarak horizontal antar-chip
+                runSpacing: 8.0, // Jarak vertikal saat pindah ke baris baru
+                children: skills
+                    .map((item) => Chip(
+                          avatar: const Icon(Icons.check_circle, size: 18, color: Colors.deepPurple),
+                          label: Text(item),
+                          backgroundColor: Colors.deepPurple.shade50,
+                        ))
+                    .toList(),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
-}
-
-// Reusable Header Identitas Mahasiswa (Sudah dibungkus Expanded agar tidak RenderFlex overflow)
-Widget _buildIdentityHeader(String category, MaterialColor colorTheme, double currentWidth) {
-  return Card(
-    elevation: 3,
-    child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '$studentId - $studentName',
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'Constraint Width: ${currentWidth.toStringAsFixed(1)} dp',
-                  style: const TextStyle(color: Colors.grey, fontSize: 11),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          Chip(
-            backgroundColor: colorTheme.shade100,
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
-            label: Text(
-              category,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 11,
-                color: colorTheme.shade900,
-              ),
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
 }
