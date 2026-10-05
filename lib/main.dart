@@ -12,25 +12,83 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Tahap 1 - Hard-coded Layout'),
-        ),
-        body: Row(
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: MediaQueryDemoPage(),
+    );
+  }
+}
+
+class MediaQueryDemoPage extends StatelessWidget {
+  const MediaQueryDemoPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // Membaca karakteristik layar menggunakan MediaQuery
+    final size = MediaQuery.of(context).size;
+    final orientation = MediaQuery.of(context).orientation;
+
+    // Kondisi sesuai instruksi modul: jika width < 600 tampilkan 'Compact', selain itu 'Wide'
+    final String layoutCategory = size.width < 600 ? 'Compact' : 'Wide';
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Tahap 2 - MediaQuery Demo'),
+        backgroundColor: Colors.indigo,
+        foregroundColor: Colors.white,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Identitas Mahasiswa (Wajib)
+            Text(
+              'Identitas: $studentId - $studentName',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const Divider(height: 24, thickness: 1.5),
+
+            // Informasi Layar dari MediaQuery
+            Text(
+              'Width: ${size.width.toStringAsFixed(0)} dp',
+              style: const TextStyle(fontSize: 18),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Height: ${size.height.toStringAsFixed(0)} dp',
+              style: const TextStyle(fontSize: 18),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Orientation: ${orientation.name.toUpperCase()}',
+              style: const TextStyle(fontSize: 18),
+            ),
+            const SizedBox(height: 16),
+
+            // Kategori Layout Berdasarkan Breakpoint Lebar Layar
             Container(
-              width: 500, // Ukuran melebihi lebar 412px, memicu overflow
-              color: Colors.amber.shade300,
-              padding: const EdgeInsets.all(16),
-              child: const Text(
-                '2415051005 - Kadek Adi Saputra - Layout Hard-Coded dengan teks yang sangat panjang melebihi kapasitas layar',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: BoxDecoration(
+                color: size.width < 600 ? Colors.orange.shade100 : Colors.teal.shade100,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: size.width < 600 ? Colors.orange : Colors.teal,
+                  width: 1.5,
+                ),
+              ),
+              child: Text(
+                'Layout Category: $layoutCategory',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: size.width < 600 ? Colors.orange.shade900 : Colors.teal.shade900,
+                ),
               ),
             ),
           ],
-        ), // Penutup Row
-      ), // Penutup Scaffold
-    ); // Penutup MaterialApp
+        ),
+      ),
+    );
   }
 }
