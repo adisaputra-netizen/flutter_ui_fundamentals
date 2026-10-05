@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-// Identitas Mahasiswa (Wajib)
+// Identitas Mahasiswa
 const String studentName = 'Kadek Adi Saputra';
 const String studentId = '2415051005';
 
@@ -15,71 +15,106 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Course Explorer - Tahap 13',
+      title: 'Course Explorer - Tahap 14',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const FeedbackFormScreen(),
+      home: const FeedbackScreen(),
     );
   }
 }
 
-class FeedbackFormScreen extends StatefulWidget {
-  const FeedbackFormScreen({super.key});
+class FeedbackScreen extends StatefulWidget {
+  const FeedbackScreen({super.key});
 
   @override
-  State<FeedbackFormScreen> createState() => _FeedbackFormScreenState();
+  State<FeedbackScreen> createState() => _FeedbackScreenState();
 }
 
-class _FeedbackFormScreenState extends State<FeedbackFormScreen> {
-  // GlobalKey untuk mengontrol dan memvalidasi Form
+class _FeedbackScreenState extends State<FeedbackScreen> {
   final _formKey = GlobalKey<FormState>();
-
-  // Controller untuk field input
-  late final TextEditingController _nameController;
-  late final TextEditingController _idController;
   final TextEditingController _commentController = TextEditingController();
-
-  String? _submittedData;
-
-  @override
-  void initState() {
-    super.initState();
-    // Nilai default diambil dari konstanta identitas
-    _nameController = TextEditingController(text: studentName);
-    _idController = TextEditingController(text: studentId);
-  }
+  
+  bool _isLoading = false;
+  String _statusMessage = 'Belum ada data yang dikirim';
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _idController.dispose();
     _commentController.dispose();
     super.dispose();
   }
 
-  void _handleSubmit() {
-    // Validasi form dipanggil sebelum menampilkan hasil
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _submittedData =
-            'Nama: ${_nameController.text}\nNIM: ${_idController.text}\nKomentar: ${_commentController.text}';
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Form berhasil divalidasi dan disimpan!'),
-          backgroundColor: Colors.green,
-        ),
-      );
+  // 1. Fungsi menampilkan Dialog Konfirmasi
+  Future<void> _confirmAndSubmit() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final bool? shouldProceed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext ctx) {
+        return AlertDialog(
+          title: const Text('Konfirmasi Pengiriman'),
+          content: Text(
+            'Apakah Anda yakin ingin mengirim ulasan untuk mahasiswa $studentName ($studentId)?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Batal'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Kirim'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldProceed == true) {
+      _processData();
     }
+  }
+
+  // 2. Fungsi Simulasi Loading dan SnackBar
+  Future<void> _processData() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    // Simulasi delay asynchronous 2 detik
+    await Future.delayed(const Duration(seconds: 2));
+
+    if (!mounted) return;
+
+    setState(() {
+      _isLoading = false;
+      _statusMessage = 'Ulasan tersimpan: "${_commentController.text}"';
+      _commentController.clear();
+    });
+
+    // Tampilkan SnackBar feedback
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: const [
+            Icon(Icons.check_circle, color: Colors.white),
+            SizedBox(width: 8),
+            Text('Feedback berhasil dikirim dan dicatat!'),
+          ],
+        ),
+        backgroundColor: Colors.green,
+        duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Form & Validasi Input'),
+        title: const Text('Feedback & Dialog'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: SingleChildScrollView(
@@ -89,93 +124,66 @@ class _FeedbackFormScreenState extends State<FeedbackFormScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                'Identitas Praktikan: $studentName - $studentId',
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-              ),
-              const SizedBox(height: 16),
-              // Field 1: Nama
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Nama Mahasiswa',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.person),
+              Card(
+                color: Colors.blue.shade50,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text(
+                        'Praktikan: $studentName',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                      Text('NIM: $studentId'),
+                    ],
+                  ),
                 ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Nama tidak boleh kosong';
-                  }
-                  return null;
-                },
               ),
-              const SizedBox(height: 16),
-              // Field 2: NIM
-              TextFormField(
-                controller: _idController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'NIM',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.badge),
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'NIM tidak boleh kosong';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              // Field 3: Komentar (Minimal 5 Karakter)
+              const SizedBox(height: 20),
               TextFormField(
                 controller: _commentController,
                 maxLines: 3,
                 decoration: const InputDecoration(
-                  labelText: 'Komentar / Feedback Course',
-                  hintText: 'Tuliskan ulasan minimal 5 karakter...',
+                  labelText: 'Komentar Course',
+                  hintText: 'Tuliskan evaluasi Anda...',
                   border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.chat_bubble_outline),
+                  prefixIcon: Icon(Icons.rate_review_outlined),
                 ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Komentar wajib diisi';
+                validator: (val) {
+                  if (val == null || val.trim().isEmpty) {
+                    return 'Komentar tidak boleh kosong';
                   }
-                  if (value.trim().length < 5) {
-                    return 'Komentar minimal 5 karakter';
+                  if (val.trim().length < 5) {
+                    return 'Minimal 5 karakter';
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 20),
-              FilledButton.icon(
-                onPressed: _handleSubmit,
-                icon: const Icon(Icons.send),
-                label: const Text('Kirim Feedback'),
-              ),
-              const SizedBox(height: 24),
-              // Menampilkan hasil setelah tervalidasi
-              if (_submittedData != null)
-                Card(
-                  color: Colors.blue.shade50,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Hasil Validasi Form:',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        const Divider(),
-                        Text(_submittedData!),
-                      ],
+              // Tombol atau Loading Indicator
+              _isLoading
+                  ? const Center(
+                      child: Column(
+                        children: [
+                          CircularProgressIndicator(),
+                          SizedBox(height: 8),
+                          Text('Menyimpan data...'),
+                        ],
+                      ),
+                    )
+                  : FilledButton.icon(
+                      onPressed: _confirmAndSubmit,
+                      icon: const Icon(Icons.send),
+                      label: const Text('Simpan Feedback'),
                     ),
-                  ),
-                ),
+              const SizedBox(height: 24),
+              const Divider(),
+              Text(
+                'Status: $_statusMessage',
+                style: const TextStyle(fontStyle: FontStyle.italic, color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
             ],
           ),
         ),
