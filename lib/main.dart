@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-// Identitas Mahasiswa (Tahap 10)
+// Identitas Mahasiswa
 const String studentName = 'Kadek Adi Saputra';
 const String studentId = '2415051005';
 
@@ -15,24 +15,25 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Course Explorer - Tahap 10',
+      title: 'Course Explorer - Tahap 11',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const MainNavigationScreen(),
+      home: const AdaptiveNavigationShell(),
     );
   }
 }
 
-class MainNavigationScreen extends StatefulWidget {
-  const MainNavigationScreen({super.key});
+class AdaptiveNavigationShell extends StatefulWidget {
+  const AdaptiveNavigationShell({super.key});
 
   @override
-  State<MainNavigationScreen> createState() => _MainNavigationScreenState();
+  State<AdaptiveNavigationShell> createState() =>
+      _AdaptiveNavigationShellState();
 }
 
-class _MainNavigationScreenState extends State<MainNavigationScreen> {
+class _AdaptiveNavigationShellState extends State<AdaptiveNavigationShell> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = const [
@@ -43,33 +44,89 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _pages[_currentIndex],
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (int index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Home',
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Breakpoint: jika lebar >= 840 px gunakan NavigationRail (Expanded)
+        if (constraints.maxWidth >= 840) {
+          return Scaffold(
+            body: Row(
+              children: [
+                NavigationRail(
+                  selectedIndex: _currentIndex,
+                  onDestinationSelected: (int index) {
+                    setState(() {
+                      _currentIndex = index;
+                    });
+                  },
+                  labelType: NavigationRailLabelType.all,
+                  leading: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    child: Text(
+                      'CE\n840+',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                  destinations: const [
+                    NavigationRailDestination(
+                      icon: Icon(Icons.home_outlined),
+                      selectedIcon: Icon(Icons.home),
+                      label: Text('Home'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.school_outlined),
+                      selectedIcon: Icon(Icons.school),
+                      label: Text('Courses'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.person_outline),
+                      selectedIcon: Icon(Icons.person),
+                      label: Text('Profile'),
+                    ),
+                  ],
+                ),
+                const VerticalDivider(thickness: 1, width: 1),
+                Expanded(
+                  child: _pages[_currentIndex],
+                ),
+              ],
+            ),
+          );
+        }
+
+        // Jika lebar < 840 px gunakan NavigationBar (Compact / Medium)
+        return Scaffold(
+          body: _pages[_currentIndex],
+          bottomNavigationBar: NavigationBar(
+            selectedIndex: _currentIndex,
+            onDestinationSelected: (int index) {
+              setState(() {
+                _currentIndex = index;
+              });
+            },
+            destinations: const [
+              NavigationDestination(
+                icon: Icon(Icons.home_outlined),
+                selectedIcon: Icon(Icons.home),
+                label: 'Home',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.school_outlined),
+                selectedIcon: Icon(Icons.school),
+                label: 'Courses',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.person_outline),
+                selectedIcon: Icon(Icons.person),
+                label: 'Profile',
+              ),
+            ],
           ),
-          NavigationDestination(
-            icon: Icon(Icons.school_outlined),
-            selectedIcon: Icon(Icons.school),
-            label: 'Courses',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -91,17 +148,23 @@ class HomePage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.dashboard_outlined, size: 72, color: Colors.blue),
+              const Icon(Icons.devices, size: 72, color: Colors.blue),
               const SizedBox(height: 16),
               const Text(
-                'Selamat Datang di Course Explorer',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                'Adaptive Navigation Pattern',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               Text(
                 'Praktikan: $studentName ($studentId)',
                 style: const TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Ubah orientasi atau ukuran window untuk melihat transisi NavigationBar ↔ NavigationRail',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontStyle: FontStyle.italic),
               ),
             ],
           ),
@@ -117,7 +180,7 @@ class CoursesPage extends StatelessWidget {
 
   final List<Map<String, String>> dummyCourses = const [
     {'code': 'MOB04', 'name': 'Responsive Layout', 'status': 'Active'},
-    {'code': 'MOB05', 'name': 'Navigation Stack', 'status': 'Planned'},
+    {'code': 'MOB05', 'name': 'Navigation Stack', 'status': 'Active'},
     {'code': 'MOB06', 'name': 'User Interaction', 'status': 'Planned'},
   ];
 
