@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-// Identitas Mahasiswa
+// Identitas Mahasiswa (Wajib)
 const String studentName = 'Kadek Adi Saputra';
 const String studentId = '2415051005';
 
@@ -15,172 +15,170 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Course Explorer - Tahap 12',
+      title: 'Course Explorer - Tahap 13',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const InteractionScreen(),
+      home: const FeedbackFormScreen(),
     );
   }
 }
 
-// Model data Course sederhana
-class CourseItem {
-  final String code;
-  final String title;
-  final String status;
-  bool isFavorite;
-
-  CourseItem({
-    required this.code,
-    required this.title,
-    required this.status,
-    this.isFavorite = false,
-  });
-}
-
-class InteractionScreen extends StatefulWidget {
-  const InteractionScreen({super.key});
+class FeedbackFormScreen extends StatefulWidget {
+  const FeedbackFormScreen({super.key});
 
   @override
-  State<InteractionScreen> createState() => _InteractionScreenState();
+  State<FeedbackFormScreen> createState() => _FeedbackFormScreenState();
 }
 
-class _InteractionScreenState extends State<InteractionScreen> {
-  // Daftar course dengan status favorite yang dapat diubah
-  final List<CourseItem> courses = [
-    CourseItem(code: 'MOB04', title: 'Responsive Layout', status: 'Active'),
-    CourseItem(code: 'MOB05', title: 'Navigation Stack', status: 'Active'),
-    CourseItem(code: 'MOB06', title: 'User Interaction', status: 'Active'),
-    CourseItem(code: 'MOB07', title: 'State Management', status: 'Planned'),
-  ];
+class _FeedbackFormScreenState extends State<FeedbackFormScreen> {
+  // GlobalKey untuk mengontrol dan memvalidasi Form
+  final _formKey = GlobalKey<FormState>();
 
-  String lastActionLog = 'Belum ada interaksi';
+  // Controller untuk field input
+  late final TextEditingController _nameController;
+  late final TextEditingController _idController;
+  final TextEditingController _commentController = TextEditingController();
+
+  String? _submittedData;
+
+  @override
+  void initState() {
+    super.initState();
+    // Nilai default diambil dari konstanta identitas
+    _nameController = TextEditingController(text: studentName);
+    _idController = TextEditingController(text: studentId);
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _idController.dispose();
+    _commentController.dispose();
+    super.dispose();
+  }
+
+  void _handleSubmit() {
+    // Validasi form dipanggil sebelum menampilkan hasil
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _submittedData =
+            'Nama: ${_nameController.text}\nNIM: ${_idController.text}\nKomentar: ${_commentController.text}';
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Form berhasil divalidasi dan disimpan!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Interaction: Card & Favorite'),
+        title: const Text('Form & Validasi Input'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: Column(
-        children: [
-          // Header Identitas & Log Interaksi
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            color: Colors.blue.shade50,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '$studentName ($studentId)',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Identitas Praktikan: $studentName - $studentId',
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+              ),
+              const SizedBox(height: 16),
+              // Field 1: Nama
+              TextFormField(
+                controller: _nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Nama Mahasiswa',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.person),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  'Aktivitas Terakhir: $lastActionLog',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontStyle: FontStyle.italic,
-                    color: Colors.blue.shade900,
-                  ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Nama tidak boleh kosong';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              // Field 2: NIM
+              TextFormField(
+                controller: _idController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'NIM',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.badge),
                 ),
-              ],
-            ),
-          ),
-          // Daftar Course dengan InkWell dan GestureDetector
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: courses.length,
-              itemBuilder: (context, index) {
-                final course = courses[index];
-                return Card(
-                  clipBehavior: Clip.antiAlias, // Agar ripple InkWell rapi di dalam card
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: InkWell(
-                    // 1. Aksi Tap dengan Ripple Material
-                    onTap: () {
-                      setState(() {
-                        lastActionLog = 'Tap pada course: ${course.title}';
-                      });
-                    },
-                    // 2. Aksi Long Press (Gesture tambahan)
-                    onLongPress: () {
-                      setState(() {
-                        lastActionLog = 'Long press info: ${course.code} - ${course.title}';
-                      });
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Detail cepat: ${course.code} berstatus ${course.status}'),
-                          duration: const Duration(seconds: 1),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'NIM tidak boleh kosong';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              // Field 3: Komentar (Minimal 5 Karakter)
+              TextFormField(
+                controller: _commentController,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  labelText: 'Komentar / Feedback Course',
+                  hintText: 'Tuliskan ulasan minimal 5 karakter...',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.chat_bubble_outline),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Komentar wajib diisi';
+                  }
+                  if (value.trim().length < 5) {
+                    return 'Komentar minimal 5 karakter';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 20),
+              FilledButton.icon(
+                onPressed: _handleSubmit,
+                icon: const Icon(Icons.send),
+                label: const Text('Kirim Feedback'),
+              ),
+              const SizedBox(height: 24),
+              // Menampilkan hasil setelah tervalidasi
+              if (_submittedData != null)
+                Card(
+                  color: Colors.blue.shade50,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Hasil Validasi Form:',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
-                      );
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        children: [
-                          const CircleAvatar(
-                            backgroundColor: Colors.blue,
-                            foregroundColor: Colors.white,
-                            child: Icon(Icons.school),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  course.title,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'Kode: ${course.code} • Status: ${course.status}',
-                                  style: const TextStyle(color: Colors.grey),
-                                ),
-                              ],
-                            ),
-                          ),
-                          // 3. Tombol Favorite dengan icon aktif/nonaktif
-                          IconButton(
-                            icon: Icon(
-                              course.isFavorite
-                                  ? Icons.favorite
-                                  : Icons.favorite_border,
-                              color: course.isFavorite ? Colors.red : Colors.grey,
-                            ),
-                            tooltip: course.isFavorite
-                                ? 'Hapus Favorite'
-                                : 'Tambah Favorite',
-                            onPressed: () {
-                              setState(() {
-                                course.isFavorite = !course.isFavorite;
-                                lastActionLog = course.isFavorite
-                                    ? '${course.title} ditambahkan ke favorit'
-                                    : '${course.title} dihapus dari favorit';
-                              });
-                            },
-                          ),
-                        ],
-                      ),
+                        const Divider(),
+                        Text(_submittedData!),
+                      ],
                     ),
                   ),
-                );
-              },
-            ),
+                ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
