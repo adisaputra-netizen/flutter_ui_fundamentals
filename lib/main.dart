@@ -1,71 +1,8 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 
-// Identitas Mahasiswa
+// Identitas Mahasiswa (Wajib muncul di UI dan Kode)
 const String studentName = 'Kadek Adi Saputra';
 const String studentId = '2415051005';
-
-// Data JSON statik dari pertemuan sebelumnya
-const String rawCourseJson = '''
-{
-  "student": {
-    "name": "Kadek Adi Saputra",
-    "nim": "2415051005",
-    "program": "Pendidikan Teknik Informatika",
-    "university": "Universitas Pendidikan Ganesha"
-  },
-  "courses": [
-    {
-      "code": "PTI2101",
-      "title": "Pemrograman Mobile",
-      "credits": 3,
-      "status": "Selesai",
-      "grade": "A",
-      "semester": 5
-    },
-    {
-      "code": "PTI2102",
-      "title": "Struktur Data & Algoritma",
-      "credits": 3,
-      "status": "Selesai",
-      "grade": "A",
-      "semester": 3
-    },
-    {
-      "code": "PTI2103",
-      "title": "Rekayasa Perangkat Lunak",
-      "credits": 3,
-      "status": "Selesai",
-      "grade": "A-",
-      "semester": 4
-    },
-    {
-      "code": "PTI2104",
-      "title": "Jaringan Komputer",
-      "credits": 3,
-      "status": "Sedang Diambil",
-      "grade": "-",
-      "semester": 5
-    },
-    {
-      "code": "PTI2105",
-      "title": "Pengolahan Citra Digital",
-      "credits": 2,
-      "status": "Sedang Diambil",
-      "grade": "-",
-      "semester": 5
-    },
-    {
-      "code": "PTI2106",
-      "title": "Kapita Selekta Informatika",
-      "credits": 2,
-      "status": "Rencana",
-      "grade": "-",
-      "semester": 6
-    }
-  ]
-}
-''';
 
 void main() {
   runApp(const MyApp());
@@ -77,165 +14,133 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Tahap 5 - GridView Responsif',
+      title: 'Tahap 6 - Scrollable Content & Keyboard',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
         useMaterial3: true,
       ),
-      home: const ResponsiveGridPage(),
+      home: const ScrollableFormPage(),
     );
   }
 }
 
-class ResponsiveGridPage extends StatefulWidget {
-  const ResponsiveGridPage({super.key});
+class ScrollableFormPage extends StatefulWidget {
+  const ScrollableFormPage({super.key});
 
   @override
-  State<ResponsiveGridPage> createState() => _ResponsiveGridPageState();
+  State<ScrollableFormPage> createState() => _ScrollableFormPageState();
 }
 
-class _ResponsiveGridPageState extends State<ResponsiveGridPage> {
-  late List<dynamic> courses;
-
-  @override
-  void initState() {
-    super.initState();
-    // Parse JSON langsung ke format List of Map
-    final Map<String, dynamic> parsedData = jsonDecode(rawCourseJson);
-    courses = parsedData['courses'] as List<dynamic>;
-  }
-
-  // Breakpoint penentu jumlah kolom
-  int columnsFor(double width) {
-    if (width < 600) return 1; // Compact: 1 Kolom
-    if (width < 840) return 2; // Medium: 2 Kolom
-    return 3;                  // Expanded: 3 Kolom
-  }
+class _ScrollableFormPageState extends State<ScrollableFormPage> {
+  bool _useScroll = true; // Switch untuk menguji dengan atau tanpa SingleChildScrollView
 
   @override
   Widget build(BuildContext context) {
+    // Konten formulir panjang yang melebihi tinggi layar saat keyboard muncul
+    Widget formContent = Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Header Identitas
+          Card(
+            color: Colors.blueGrey.shade50,
+            elevation: 2,
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Tahap 6: Scrollable & Keyboard Handling',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                  const SizedBox(height: 4),
+                  Text('$studentId - $studentName',
+                      style: const TextStyle(fontSize: 13, color: Colors.blueGrey)),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Tombol Sakelar untuk demonstrasi
+          SwitchListTile(
+            title: const Text('Gunakan SingleChildScrollView', style: TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text(_useScroll ? 'Aktif: Bebas overflow keyboard' : 'Nonaktif: Rentan overflow keyboard'),
+            value: _useScroll,
+            onChanged: (val) => setState(() => _useScroll = val),
+          ),
+          const Divider(),
+
+          // Field-field input
+          const Text('Field 1: Informasi Akademik', style: TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 6),
+          const TextField(
+            decoration: InputDecoration(
+              labelText: 'Program Studi',
+              hintText: 'Pendidikan Teknik Informatika',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          const Text('Field 2: Nama Mata Kuliah', style: TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 6),
+          const TextField(
+            decoration: InputDecoration(
+              labelText: 'Mata Kuliah',
+              hintText: 'Pemrograman Mobile',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          const Text('Field 3: Masukan / Catatan', style: TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 6),
+          const TextField(
+            maxLines: 3,
+            decoration: InputDecoration(
+              labelText: 'Komentar Pembelajaran',
+              hintText: 'Tuliskan catatan di sini...',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Field bagian bawah yang akan tertutup keyboard
+          const Text('Field 4: Target Nilai (Posisi Bawah)', style: TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 6),
+          const TextField(
+            decoration: InputDecoration(
+              labelText: 'Target Grade',
+              hintText: 'A',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          ElevatedButton.icon(
+            icon: const Icon(Icons.save),
+            label: const Text('Simpan Data Formulir'),
+            onPressed: () {
+              FocusScope.of(context).unfocus(); // Menutup keyboard
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Formulir berhasil disimpan!')),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tahap 5 - GridView Responsif'),
-        backgroundColor: Colors.teal,
+        title: const Text('Tahap 6 - Scrollable Content'),
+        backgroundColor: Colors.blueGrey,
         foregroundColor: Colors.white,
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final columnCount = columnsFor(constraints.maxWidth);
-
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header Identitas Mahasiswa
-                Card(
-                  color: Colors.teal.shade50,
-                  elevation: 2,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.school, color: Colors.teal),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '$studentId - $studentName',
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              Text(
-                                'Lebar: ${constraints.maxWidth.toStringAsFixed(1)} dp | Kolom: $columnCount',
-                                style: const TextStyle(fontSize: 11, color: Colors.black54),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Chip(
-                          label: Text(
-                            columnCount == 1 ? 'Compact' : (columnCount == 2 ? 'Medium' : 'Expanded'),
-                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                // Responsive GridView dari data JSON
-                Expanded(
-                  child: GridView.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: columnCount,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
-                      childAspectRatio: columnCount == 1 ? 2.8 : 2.0,
-                    ),
-                    itemCount: courses.length,
-                    itemBuilder: (context, index) {
-                      final item = courses[index] as Map<String, dynamic>;
-                      final status = item['status'] as String;
-
-                      Color statusColor = Colors.grey;
-                      if (status == 'Selesai') statusColor = Colors.green;
-                      if (status == 'Sedang Diambil') statusColor = Colors.orange;
-
-                      return Card(
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Row(
-                            children: [
-                              CircleAvatar(
-                                backgroundColor: statusColor.withOpacity(0.2),
-                                child: Text(
-                                  '${item['credits']}S',
-                                  style: TextStyle(fontWeight: FontWeight.bold, color: statusColor),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      item['title'] as String,
-                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      '${item['code']} • Sem ${item['semester']} • Nilai: ${item['grade']}',
-                                      style: const TextStyle(fontSize: 11, color: Colors.black54),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      status,
-                                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: statusColor),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
+      // Kondisi pengujian: dibungkus SingleChildScrollView atau Column polos
+      body: _useScroll ? SingleChildScrollView(child: formContent) : formContent,
     );
   }
 }
