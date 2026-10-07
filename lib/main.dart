@@ -40,6 +40,27 @@ class CourseItem {
   });
 }
 
+// ==================== TAHAP 5: CHANGENOTIFIER MODEL ====================
+// Mengelola business logic & shared state di luar widget tree
+class CourseChangeNotifier extends ChangeNotifier {
+  final List<CourseItem> _courses = [
+    CourseItem(code: 'GIT01', title: 'Git & GitHub', status: 'done', isFavorite: true),
+    CourseItem(code: 'MOB01', title: 'Dart Fundamentals', status: 'done', isFavorite: true),
+    CourseItem(code: 'MOB07', title: 'State Management', status: 'active', isFavorite: false),
+    CourseItem(code: 'MOB04', title: 'Responsive Layout', status: 'active', isFavorite: false),
+    CourseItem(code: 'MOB05', title: 'Navigation & Routing', status: 'planned', isFavorite: false),
+  ];
+
+  List<CourseItem> get courses => _courses;
+  int get favoritesCount => _courses.where((c) => c.isFavorite).length;
+
+  void toggleFavorite(CourseItem course) {
+    course.isFavorite = !course.isFavorite;
+    // Beri tahu seluruh listener yang memantau objek ini
+    notifyListeners();
+  }
+}
+
 class MainShellPage extends StatefulWidget {
   const MainShellPage({super.key});
 
@@ -49,67 +70,61 @@ class MainShellPage extends StatefulWidget {
 
 class _MainShellPageState extends State<MainShellPage> {
   int _currentIndex = 0;
+  // Instansiasi ChangeNotifier sebagai sumber data tunggal
+  late final CourseChangeNotifier _courseNotifier;
 
-  final List<CourseItem> _courses = [
-    CourseItem(code: 'GIT01', title: 'Git & GitHub', status: 'done', isFavorite: true),
-    CourseItem(code: 'MOB01', title: 'Dart Fundamentals', status: 'done', isFavorite: true),
-    CourseItem(code: 'MOB07', title: 'State Management', status: 'active', isFavorite: false),
-    CourseItem(code: 'MOB04', title: 'Responsive Layout', status: 'active', isFavorite: false),
-    CourseItem(code: 'MOB05', title: 'Navigation & Routing', status: 'planned', isFavorite: false),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _courseNotifier = CourseChangeNotifier();
+  }
 
-  void _toggleFavorite(CourseItem course) {
-    setState(() {
-      course.isFavorite = !course.isFavorite;
-    });
+  @override
+  void dispose() {
+    _courseNotifier.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final favoritesCount = _courses.where((c) => c.isFavorite).length;
+    // ListenableBuilder mendengarkan perubahan dari ChangeNotifier
+    return ListenableBuilder(
+      listenable: _courseNotifier,
+      builder: (context, child) {
+        final List<Widget> pages = [
+          HomeScreen(courseNotifier: _courseNotifier),
+          CoursesScreen(courseNotifier: _courseNotifier),
+          FavoritesScreen(courseNotifier: _courseNotifier),
+        ];
 
-    final List<Widget> pages = [
-      HomeScreen(
-        courses: _courses,
-        favoritesCount: favoritesCount,
-        onToggleFavorite: _toggleFavorite,
-      ),
-      CoursesScreen(
-        courses: _courses,
-        onToggleFavorite: _toggleFavorite,
-      ),
-      FavoritesScreen(
-        courses: _courses.where((c) => c.isFavorite).toList(),
-        onToggleFavorite: _toggleFavorite,
-      ),
-    ];
-
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1976D2),
-        elevation: 0,
-        title: const Text(
-          'Course Explorer v2',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
+        return Scaffold(
+          appBar: AppBar(
+            backgroundColor: const Color(0xFF1976D2),
+            elevation: 0,
+            title: const Text(
+              'Course Explorer v2',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
           ),
-        ),
-      ),
-      body: pages[_currentIndex],
-      bottomNavigationBar: Container(
-        color: const Color(0xFFE3EFFC),
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildNavItem(0, 'Home'),
-            _buildNavItem(1, 'Courses'),
-            _buildNavItem(2, 'Favorites'),
-          ],
-        ),
-      ),
+          body: pages[_currentIndex],
+          bottomNavigationBar: Container(
+            color: const Color(0xFFE3EFFC),
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildNavItem(0, 'Home'),
+                _buildNavItem(1, 'Courses'),
+                _buildNavItem(2, 'Favorites'),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -135,19 +150,18 @@ class _MainShellPageState extends State<MainShellPage> {
 
 // ---------------- 1. HOME SCREEN ----------------
 class HomeScreen extends StatelessWidget {
-  final List<CourseItem> courses;
-  final int favoritesCount;
-  final Function(CourseItem) onToggleFavorite;
+  final CourseChangeNotifier courseNotifier;
 
   const HomeScreen({
     super.key,
-    required this.courses,
-    required this.favoritesCount,
-    required this.onToggleFavorite,
+    required this.courseNotifier,
   });
 
   @override
   Widget build(BuildContext context) {
+    final courses = courseNotifier.courses;
+    final favoritesCount = courseNotifier.favoritesCount;
+
     return ListView(
       padding: const EdgeInsets.all(16.0),
       children: [
@@ -170,7 +184,7 @@ class HomeScreen extends StatelessWidget {
         ),
         const SizedBox(height: 16),
 
-        // Dua Summary Card: Courses & Favorites
+        // Dua Summary Card: Courses & Favorites (Otomatis sinkron via ChangeNotifier)
         Row(
           children: [
             Expanded(
@@ -185,12 +199,17 @@ class HomeScreen extends StatelessWidget {
         const SizedBox(height: 16),
 
         // Daftar 3 Kursus Teratas
-        ...courses.take(3).map((item) => _buildCourseCard(item)),
+        ...courses.take(3).map(
+              (item) => _buildCourseCard(
+                item,
+                onToggle: () => courseNotifier.toggleFavorite(item),
+              ),
+            ),
 
         const SizedBox(height: 16),
 
-        // >>> WIDGET TAHAP 4: VALUENOTIFIER & VALUELISTENABLEBUILDER <<<
-        const Stage4ValueNotifierCard(),
+        // >>> WIDGET TAHAP 5: CHANGENOTIFIER CARD <<<
+        Stage5ChangeNotifierCard(courseNotifier: courseNotifier),
       ],
     );
   }
@@ -224,7 +243,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCourseCard(CourseItem item) {
+  Widget _buildCourseCard(CourseItem item, {required VoidCallback onToggle}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -263,7 +282,7 @@ class HomeScreen extends StatelessWidget {
               item.isFavorite ? Icons.favorite : Icons.favorite_border,
               color: item.isFavorite ? Colors.red : Colors.grey,
             ),
-            onPressed: () => onToggleFavorite(item),
+            onPressed: onToggle,
           ),
         ],
       ),
@@ -271,32 +290,25 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// ==================== TAHAP 4: VALUENOTIFIER & LISTENER ====================
-class Stage4ValueNotifierCard extends StatefulWidget {
-  const Stage4ValueNotifierCard({super.key});
+// ==================== WIDGET TAHAP 5 ====================
+class Stage5ChangeNotifierCard extends StatelessWidget {
+  final CourseChangeNotifier courseNotifier;
 
-  @override
-  State<Stage4ValueNotifierCard> createState() => _Stage4ValueNotifierCardState();
-}
-
-class _Stage4ValueNotifierCardState extends State<Stage4ValueNotifierCard> {
-  // ValueNotifier sebagai listener sederhana pemantau nilai integer
-  final ValueNotifier<int> _favoriteCount = ValueNotifier<int>(0);
-
-  @override
-  void dispose() {
-    _favoriteCount.dispose();
-    super.dispose();
-  }
+  const Stage5ChangeNotifierCard({
+    super.key,
+    required this.courseNotifier,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final mob07 = courseNotifier.courses.firstWhere((c) => c.code == 'MOB07');
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFD1C4E9), width: 1.2),
+        border: Border.all(color: const Color(0xFF80CBC4), width: 1.2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -308,9 +320,9 @@ class _Stage4ValueNotifierCardState extends State<Stage4ValueNotifierCard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Tahap 4: ValueNotifier & Listener',
+                    'Tahap 5: ChangeNotifier Pattern',
                     style: TextStyle(
-                      color: Color(0xFF673AB7),
+                      color: Color(0xFF00695C),
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
                     ),
@@ -322,74 +334,46 @@ class _Stage4ValueNotifierCardState extends State<Stage4ValueNotifierCard> {
                   ),
                 ],
               ),
-              const Icon(Icons.bolt, color: Color(0xFF673AB7), size: 22),
+              const Icon(Icons.sync, color: Color(0xFF00695C), size: 22),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: const Color(0xFFF3E5F5).withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(12),
+              color: const Color(0xFFE0F2F1),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Hanya teks ini yang dirender ulang saat nilai berubah
-                ValueListenableBuilder<int>(
-                  valueListenable: _favoriteCount,
-                  builder: (context, value, child) {
-                    return Text(
-                      'Terpantau: $value Favorit',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                        color: Colors.black87,
-                      ),
-                    );
-                  },
+                Expanded(
+                  child: Text(
+                    '${mob07.title}: ${mob07.isFavorite ? "Favorit" : "Bukan Favorit"}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      color: Color(0xFF004D40),
+                    ),
+                  ),
                 ),
-                Row(
-                  children: [
-                    // Tombol minus
-                    InkWell(
-                      onTap: () {
-                        if (_favoriteCount.value > 0) {
-                          _favoriteCount.value--;
-                        }
-                      },
-                      borderRadius: BorderRadius.circular(20),
-                      child: Container(
-                        width: 32,
-                        height: 32,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFEDE7F6),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.remove, size: 18, color: Color(0xFF512DA8)),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    // Tombol plus
-                    InkWell(
-                      onTap: () {
-                        _favoriteCount.value++;
-                      },
-                      borderRadius: BorderRadius.circular(20),
-                      child: Container(
-                        width: 32,
-                        height: 32,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFEDE7F6),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.add, size: 18, color: Color(0xFF512DA8)),
-                      ),
-                    ),
-                  ],
+                FilledButton.tonal(
+                  onPressed: () => courseNotifier.toggleFavorite(mob07),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: const Color(0xFF80CBC4),
+                  ),
+                  child: Text(
+                    mob07.isFavorite ? 'Batalkan' : 'Favoritkan',
+                    style: const TextStyle(color: Color(0xFF004D40), fontSize: 12),
+                  ),
                 ),
               ],
             ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'State dikelola oleh class mandiri turunan ChangeNotifier via notifyListeners().',
+            style: TextStyle(fontSize: 11, color: Colors.black54),
           ),
         ],
       ),
@@ -399,17 +383,17 @@ class _Stage4ValueNotifierCardState extends State<Stage4ValueNotifierCard> {
 
 // ---------------- 2. COURSES SCREEN ----------------
 class CoursesScreen extends StatelessWidget {
-  final List<CourseItem> courses;
-  final Function(CourseItem) onToggleFavorite;
+  final CourseChangeNotifier courseNotifier;
 
   const CoursesScreen({
     super.key,
-    required this.courses,
-    required this.onToggleFavorite,
+    required this.courseNotifier,
   });
 
   @override
   Widget build(BuildContext context) {
+    final courses = courseNotifier.courses;
+
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: courses.length,
@@ -425,7 +409,7 @@ class CoursesScreen extends StatelessWidget {
                 item.isFavorite ? Icons.favorite : Icons.favorite_border,
                 color: item.isFavorite ? Colors.red : Colors.grey,
               ),
-              onPressed: () => onToggleFavorite(item),
+              onPressed: () => courseNotifier.toggleFavorite(item),
             ),
           ),
         );
@@ -436,25 +420,25 @@ class CoursesScreen extends StatelessWidget {
 
 // ---------------- 3. FAVORITES SCREEN ----------------
 class FavoritesScreen extends StatelessWidget {
-  final List<CourseItem> courses;
-  final Function(CourseItem) onToggleFavorite;
+  final CourseChangeNotifier courseNotifier;
 
   const FavoritesScreen({
     super.key,
-    required this.courses,
-    required this.onToggleFavorite,
+    required this.courseNotifier,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (courses.isEmpty) {
+    final favList = courseNotifier.courses.where((c) => c.isFavorite).toList();
+
+    if (favList.isEmpty) {
       return const Center(child: Text('Belum ada materi favorit.'));
     }
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: courses.length,
+      itemCount: favList.length,
       itemBuilder: (context, index) {
-        final item = courses[index];
+        final item = favList[index];
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
           child: ListTile(
@@ -462,7 +446,7 @@ class FavoritesScreen extends StatelessWidget {
             subtitle: Text(item.code),
             trailing: IconButton(
               icon: const Icon(Icons.favorite, color: Colors.red),
-              onPressed: () => onToggleFavorite(item),
+              onPressed: () => courseNotifier.toggleFavorite(item),
             ),
           ),
         );
