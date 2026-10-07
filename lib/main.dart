@@ -58,6 +58,15 @@ class _MainShellPageState extends State<MainShellPage> {
     CourseItem(code: 'MOB05', title: 'Navigation & Routing', status: 'planned', isFavorite: false),
   ];
 
+  // State untuk demonstrasi Tahap 2 yang dimiliki oleh parent
+  int _drilledCounter = 0;
+
+  void _incrementDrilledCounter() {
+    setState(() {
+      _drilledCounter++;
+    });
+  }
+
   void _toggleFavorite(CourseItem course) {
     setState(() {
       course.isFavorite = !course.isFavorite;
@@ -72,6 +81,8 @@ class _MainShellPageState extends State<MainShellPage> {
       HomeScreen(
         courses: _courses,
         favoritesCount: favoritesCount,
+        drilledCounter: _drilledCounter,
+        onIncrementDrilled: _incrementDrilledCounter,
         onToggleFavorite: _toggleFavorite,
       ),
       CoursesScreen(
@@ -137,12 +148,16 @@ class _MainShellPageState extends State<MainShellPage> {
 class HomeScreen extends StatelessWidget {
   final List<CourseItem> courses;
   final int favoritesCount;
+  final int drilledCounter;
+  final VoidCallback onIncrementDrilled;
   final Function(CourseItem) onToggleFavorite;
 
   const HomeScreen({
     super.key,
     required this.courses,
     required this.favoritesCount,
+    required this.drilledCounter,
+    required this.onIncrementDrilled,
     required this.onToggleFavorite,
   });
 
@@ -151,7 +166,7 @@ class HomeScreen extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16.0),
       children: [
-        // Kartu Identitas Mahasiswa
+        // 1. Kartu Identitas Mahasiswa (Paling Atas)
         Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -168,13 +183,9 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
 
-        // >>> WIDGET FOKUS TAHAP 1: LOCAL STATE DENGAN SETSTATE <<<
-        const LocalStateStage1Widget(),
-        const SizedBox(height: 12),
-
-        // Dua Summary Card: Courses & Favorites
+        // 2. Dua Summary Card: Courses & Favorites
         Row(
           children: [
             Expanded(
@@ -188,8 +199,16 @@ class HomeScreen extends StatelessWidget {
         ),
         const SizedBox(height: 16),
 
-        // Daftar 3 Kursus Teratas
+        // 3. Daftar 3 Kursus Teratas
         ...courses.take(3).map((item) => _buildCourseCard(item)),
+
+        const SizedBox(height: 16),
+
+        // 4. Kartu Eksperimen Tahap 2 Dipindah ke Bagian Bawah
+        PropDrillingLevel1Card(
+          counter: drilledCounter,
+          onIncrement: onIncrementDrilled,
+        ),
       ],
     );
   }
@@ -270,17 +289,17 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// ==================== WIDGET TAHAP 1: LOCAL STATE ====================
-class LocalStateStage1Widget extends StatefulWidget {
-  const LocalStateStage1Widget({super.key});
+// ==================== WIDGET TAHAP 2: PROP DRILLING ====================
+// Child Level 1: Hanya menjadi jembatan pengoper props ke widget bawahnya
+class PropDrillingLevel1Card extends StatelessWidget {
+  final int counter;
+  final VoidCallback onIncrement;
 
-  @override
-  State<LocalStateStage1Widget> createState() => _LocalStateStage1WidgetState();
-}
-
-class _LocalStateStage1WidgetState extends State<LocalStateStage1Widget> {
-  // Local state murni: hanya widget ini yang mengatur nilainya
-  bool _isExpanded = false;
+  const PropDrillingLevel1Card({
+    super.key,
+    required this.counter,
+    required this.onIncrement,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -289,39 +308,67 @@ class _LocalStateStage1WidgetState extends State<LocalStateStage1Widget> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFBDD8F5), width: 1.2),
+        border: Border.all(color: const Color(0xFFF5A623), width: 1.2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Tahap 1: Local State',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                  color: Color(0xFF19426D),
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    _isExpanded = !_isExpanded;
-                  });
-                },
-                child: Text(_isExpanded ? 'Tutup Detail' : 'Buka Detail'),
-              ),
-            ],
-          ),
-          if (_isExpanded) ...[
-            const SizedBox(height: 6),
-            const Text(
-              'Ini adalah local state yang dikelola oleh setState() murni. Perubahan state di sini tidak memicu rebuild pada widget lain di halaman.',
-              style: TextStyle(fontSize: 12, color: Colors.black87),
+          const Text(
+            'Tahap 2: Prop Drilling Experiment',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+              color: Color(0xFFD08005),
             ),
-          ],
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'Parent meneruskan nilai counter & callback melalui Level 1 Widget:',
+            style: TextStyle(fontSize: 12, color: Colors.black54),
+          ),
+          const SizedBox(height: 8),
+          // Meneruskan data lagi ke child terdalam (Level 2)
+          PropDrillingLevel2Action(
+            currentValue: counter,
+            onActionPressed: onIncrement,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Child Level 2: Widget anak terdalam yang menerima data dan mengeksekusi callback
+class PropDrillingLevel2Action extends StatelessWidget {
+  final int currentValue;
+  final VoidCallback onActionPressed;
+
+  const PropDrillingLevel2Action({
+    super.key,
+    required this.currentValue,
+    required this.onActionPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF8EC),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'Diterima di Level 2: $currentValue',
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+          ),
+          OutlinedButton.icon(
+            onPressed: onActionPressed,
+            icon: const Icon(Icons.add, size: 16),
+            label: const Text('Tambah via Callback'),
+          ),
         ],
       ),
     );
