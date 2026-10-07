@@ -50,7 +50,6 @@ class MainShellPage extends StatefulWidget {
 class _MainShellPageState extends State<MainShellPage> {
   int _currentIndex = 0;
 
-  // Data awal pertemuan sebelumnya
   final List<CourseItem> _courses = [
     CourseItem(code: 'GIT01', title: 'Git & GitHub', status: 'done', isFavorite: true),
     CourseItem(code: 'MOB01', title: 'Dart Fundamentals', status: 'done', isFavorite: true),
@@ -169,7 +168,11 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
+
+        // >>> WIDGET FOKUS TAHAP 1: LOCAL STATE DENGAN SETSTATE <<<
+        const LocalStateStage1Widget(),
+        const SizedBox(height: 12),
 
         // Dua Summary Card: Courses & Favorites
         Row(
@@ -261,6 +264,64 @@ class HomeScreen extends StatelessWidget {
             ),
             onPressed: () => onToggleFavorite(item),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+// ==================== WIDGET TAHAP 1: LOCAL STATE ====================
+class LocalStateStage1Widget extends StatefulWidget {
+  const LocalStateStage1Widget({super.key});
+
+  @override
+  State<LocalStateStage1Widget> createState() => _LocalStateStage1WidgetState();
+}
+
+class _LocalStateStage1WidgetState extends State<LocalStateStage1Widget> {
+  // Local state murni: hanya widget ini yang mengatur nilainya
+  bool _isExpanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFFBDD8F5), width: 1.2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Tahap 1: Local State',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  color: Color(0xFF19426D),
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    _isExpanded = !_isExpanded;
+                  });
+                },
+                child: Text(_isExpanded ? 'Tutup Detail' : 'Buka Detail'),
+              ),
+            ],
+          ),
+          if (_isExpanded) ...[
+            const SizedBox(height: 6),
+            const Text(
+              'Ini adalah local state yang dikelola oleh setState() murni. Perubahan state di sini tidak memicu rebuild pada widget lain di halaman.',
+              style: TextStyle(fontSize: 12, color: Colors.black87),
+            ),
+          ],
         ],
       ),
     );
