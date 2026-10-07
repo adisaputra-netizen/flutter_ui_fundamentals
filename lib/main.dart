@@ -50,6 +50,7 @@ class MainShellPage extends StatefulWidget {
 class _MainShellPageState extends State<MainShellPage> {
   int _currentIndex = 0;
 
+  // Single Source of Truth untuk data kursus
   final List<CourseItem> _courses = [
     CourseItem(code: 'GIT01', title: 'Git & GitHub', status: 'done', isFavorite: true),
     CourseItem(code: 'MOB01', title: 'Dart Fundamentals', status: 'done', isFavorite: true),
@@ -58,12 +59,12 @@ class _MainShellPageState extends State<MainShellPage> {
     CourseItem(code: 'MOB05', title: 'Navigation & Routing', status: 'planned', isFavorite: false),
   ];
 
-  // State untuk demonstrasi Tahap 2 yang dimiliki oleh parent
-  int _drilledCounter = 0;
+  // SINGLE SOURCE OF TRUTH untuk Tahap 3 (disimpan di Parent)
+  bool _stage3Favorite = false;
 
-  void _incrementDrilledCounter() {
+  void _toggleStage3Favorite() {
     setState(() {
-      _drilledCounter++;
+      _stage3Favorite = !_stage3Favorite;
     });
   }
 
@@ -81,8 +82,8 @@ class _MainShellPageState extends State<MainShellPage> {
       HomeScreen(
         courses: _courses,
         favoritesCount: favoritesCount,
-        drilledCounter: _drilledCounter,
-        onIncrementDrilled: _incrementDrilledCounter,
+        stage3Favorite: _stage3Favorite,
+        onToggleStage3: _toggleStage3Favorite,
         onToggleFavorite: _toggleFavorite,
       ),
       CoursesScreen(
@@ -148,16 +149,16 @@ class _MainShellPageState extends State<MainShellPage> {
 class HomeScreen extends StatelessWidget {
   final List<CourseItem> courses;
   final int favoritesCount;
-  final int drilledCounter;
-  final VoidCallback onIncrementDrilled;
+  final bool stage3Favorite;
+  final VoidCallback onToggleStage3;
   final Function(CourseItem) onToggleFavorite;
 
   const HomeScreen({
     super.key,
     required this.courses,
     required this.favoritesCount,
-    required this.drilledCounter,
-    required this.onIncrementDrilled,
+    required this.stage3Favorite,
+    required this.onToggleStage3,
     required this.onToggleFavorite,
   });
 
@@ -166,7 +167,7 @@ class HomeScreen extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16.0),
       children: [
-        // 1. Kartu Identitas Mahasiswa (Paling Atas)
+        // Kartu Identitas Mahasiswa
         Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -185,7 +186,7 @@ class HomeScreen extends StatelessWidget {
         ),
         const SizedBox(height: 16),
 
-        // 2. Dua Summary Card: Courses & Favorites
+        // Dua Summary Card: Courses & Favorites
         Row(
           children: [
             Expanded(
@@ -199,15 +200,15 @@ class HomeScreen extends StatelessWidget {
         ),
         const SizedBox(height: 16),
 
-        // 3. Daftar 3 Kursus Teratas
+        // Daftar 3 Kursus Teratas
         ...courses.take(3).map((item) => _buildCourseCard(item)),
 
         const SizedBox(height: 16),
 
-        // 4. Kartu Eksperimen Tahap 2 Dipindah ke Bagian Bawah
-        PropDrillingLevel1Card(
-          counter: drilledCounter,
-          onIncrement: onIncrementDrilled,
+        // >>> WIDGET TAHAP 3: LIFTING STATE UP & SINGLE SOURCE OF TRUTH <<<
+        LiftingStateStage3Card(
+          isFavorite: stage3Favorite,
+          onToggle: onToggleStage3,
         ),
       ],
     );
@@ -289,16 +290,15 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// ==================== WIDGET TAHAP 2: PROP DRILLING ====================
-// Child Level 1: Hanya menjadi jembatan pengoper props ke widget bawahnya
-class PropDrillingLevel1Card extends StatelessWidget {
-  final int counter;
-  final VoidCallback onIncrement;
+// ==================== WIDGET TAHAP 3 ====================
+class LiftingStateStage3Card extends StatelessWidget {
+  final bool isFavorite;
+  final VoidCallback onToggle;
 
-  const PropDrillingLevel1Card({
+  const LiftingStateStage3Card({
     super.key,
-    required this.counter,
-    required this.onIncrement,
+    required this.isFavorite,
+    required this.onToggle,
   });
 
   @override
@@ -308,29 +308,28 @@ class PropDrillingLevel1Card extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFF5A623), width: 1.2),
+        border: Border.all(color: Colors.teal.shade300, width: 1.2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Tahap 2: Prop Drilling Experiment',
+            'Tahap 3: Lifting State Up & Single Source of Truth',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 14,
-              color: Color(0xFFD08005),
+              color: Colors.teal,
             ),
           ),
-          const SizedBox(height: 4),
-          const Text(
-            'Parent meneruskan nilai counter & callback melalui Level 1 Widget:',
-            style: TextStyle(fontSize: 12, color: Colors.black54),
-          ),
           const SizedBox(height: 8),
-          // Meneruskan data lagi ke child terdalam (Level 2)
-          PropDrillingLevel2Action(
-            currentValue: counter,
-            onActionPressed: onIncrement,
+          // Child 1: Widget yang membaca status
+          ChildStatusSummary(isFavorite: isFavorite),
+          const SizedBox(height: 8),
+          // Child 2: Widget yang mengeksekusi callback perubahan
+          ChildCourseActionCard(
+            title: 'State Management Course',
+            isFavorite: isFavorite,
+            onFavoriteChanged: onToggle,
           ),
         ],
       ),
@@ -338,36 +337,74 @@ class PropDrillingLevel1Card extends StatelessWidget {
   }
 }
 
-// Child Level 2: Widget anak terdalam yang menerima data dan mengeksekusi callback
-class PropDrillingLevel2Action extends StatelessWidget {
-  final int currentValue;
-  final VoidCallback onActionPressed;
+// Child 1: Hanya menampilkan ringkasan berdasarkan data dari parent
+class ChildStatusSummary extends StatelessWidget {
+  final bool isFavorite;
+  const ChildStatusSummary({super.key, required this.isFavorite});
 
-  const PropDrillingLevel2Action({
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: isFavorite ? Colors.teal.shade50 : Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            isFavorite ? Icons.check_circle : Icons.radio_button_unchecked,
+            color: isFavorite ? Colors.teal : Colors.grey,
+            size: 18,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            isFavorite ? 'Status: Ditandai sebagai Favorit' : 'Status: Belum Favorit',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: isFavorite ? Colors.teal.shade900 : Colors.black54,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Child 2: Mengirim aksi kembali ke parent melalui callback
+class ChildCourseActionCard extends StatelessWidget {
+  final String title;
+  final bool isFavorite;
+  final VoidCallback onFavoriteChanged;
+
+  const ChildCourseActionCard({
     super.key,
-    required this.currentValue,
-    required this.onActionPressed,
+    required this.title,
+    required this.isFavorite,
+    required this.onFavoriteChanged,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF8EC),
-        borderRadius: BorderRadius.circular(8),
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: Colors.grey.shade200),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            'Diterima di Level 2: $currentValue',
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-          ),
-          OutlinedButton.icon(
-            onPressed: onActionPressed,
-            icon: const Icon(Icons.add, size: 16),
-            label: const Text('Tambah via Callback'),
+          Text(title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+          IconButton(
+            icon: Icon(
+              isFavorite ? Icons.favorite : Icons.favorite_border,
+              color: isFavorite ? Colors.red : Colors.grey,
+            ),
+            onPressed: onFavoriteChanged,
           ),
         ],
       ),
