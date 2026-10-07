@@ -50,7 +50,6 @@ class MainShellPage extends StatefulWidget {
 class _MainShellPageState extends State<MainShellPage> {
   int _currentIndex = 0;
 
-  // Single Source of Truth untuk data kursus
   final List<CourseItem> _courses = [
     CourseItem(code: 'GIT01', title: 'Git & GitHub', status: 'done', isFavorite: true),
     CourseItem(code: 'MOB01', title: 'Dart Fundamentals', status: 'done', isFavorite: true),
@@ -58,15 +57,6 @@ class _MainShellPageState extends State<MainShellPage> {
     CourseItem(code: 'MOB04', title: 'Responsive Layout', status: 'active', isFavorite: false),
     CourseItem(code: 'MOB05', title: 'Navigation & Routing', status: 'planned', isFavorite: false),
   ];
-
-  // SINGLE SOURCE OF TRUTH untuk Tahap 3 (disimpan di Parent)
-  bool _stage3Favorite = false;
-
-  void _toggleStage3Favorite() {
-    setState(() {
-      _stage3Favorite = !_stage3Favorite;
-    });
-  }
 
   void _toggleFavorite(CourseItem course) {
     setState(() {
@@ -82,8 +72,6 @@ class _MainShellPageState extends State<MainShellPage> {
       HomeScreen(
         courses: _courses,
         favoritesCount: favoritesCount,
-        stage3Favorite: _stage3Favorite,
-        onToggleStage3: _toggleStage3Favorite,
         onToggleFavorite: _toggleFavorite,
       ),
       CoursesScreen(
@@ -149,16 +137,12 @@ class _MainShellPageState extends State<MainShellPage> {
 class HomeScreen extends StatelessWidget {
   final List<CourseItem> courses;
   final int favoritesCount;
-  final bool stage3Favorite;
-  final VoidCallback onToggleStage3;
   final Function(CourseItem) onToggleFavorite;
 
   const HomeScreen({
     super.key,
     required this.courses,
     required this.favoritesCount,
-    required this.stage3Favorite,
-    required this.onToggleStage3,
     required this.onToggleFavorite,
   });
 
@@ -205,11 +189,8 @@ class HomeScreen extends StatelessWidget {
 
         const SizedBox(height: 16),
 
-        // >>> WIDGET TAHAP 3: LIFTING STATE UP & SINGLE SOURCE OF TRUTH <<<
-        LiftingStateStage3Card(
-          isFavorite: stage3Favorite,
-          onToggle: onToggleStage3,
-        ),
+        // >>> WIDGET TAHAP 4: VALUENOTIFIER & VALUELISTENABLEBUILDER <<<
+        const Stage4ValueNotifierCard(),
       ],
     );
   }
@@ -290,121 +271,125 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// ==================== WIDGET TAHAP 3 ====================
-class LiftingStateStage3Card extends StatelessWidget {
-  final bool isFavorite;
-  final VoidCallback onToggle;
+// ==================== TAHAP 4: VALUENOTIFIER & LISTENER ====================
+class Stage4ValueNotifierCard extends StatefulWidget {
+  const Stage4ValueNotifierCard({super.key});
 
-  const LiftingStateStage3Card({
-    super.key,
-    required this.isFavorite,
-    required this.onToggle,
-  });
+  @override
+  State<Stage4ValueNotifierCard> createState() => _Stage4ValueNotifierCardState();
+}
+
+class _Stage4ValueNotifierCardState extends State<Stage4ValueNotifierCard> {
+  // ValueNotifier sebagai listener sederhana pemantau nilai integer
+  final ValueNotifier<int> _favoriteCount = ValueNotifier<int>(0);
+
+  @override
+  void dispose() {
+    _favoriteCount.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.teal.shade300, width: 1.2),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFD1C4E9), width: 1.2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Tahap 3: Lifting State Up & Single Source of Truth',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-              color: Colors.teal,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Tahap 4: ValueNotifier & Listener',
+                    style: TextStyle(
+                      color: Color(0xFF673AB7),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '$studentId • $studentName',
+                    style: const TextStyle(color: Colors.grey, fontSize: 12),
+                  ),
+                ],
+              ),
+              const Icon(Icons.bolt, color: Color(0xFF673AB7), size: 22),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF3E5F5).withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(12),
             ),
-          ),
-          const SizedBox(height: 8),
-          // Child 1: Widget yang membaca status
-          ChildStatusSummary(isFavorite: isFavorite),
-          const SizedBox(height: 8),
-          // Child 2: Widget yang mengeksekusi callback perubahan
-          ChildCourseActionCard(
-            title: 'State Management Course',
-            isFavorite: isFavorite,
-            onFavoriteChanged: onToggle,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// Child 1: Hanya menampilkan ringkasan berdasarkan data dari parent
-class ChildStatusSummary extends StatelessWidget {
-  final bool isFavorite;
-  const ChildStatusSummary({super.key, required this.isFavorite});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: isFavorite ? Colors.teal.shade50 : Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            isFavorite ? Icons.check_circle : Icons.radio_button_unchecked,
-            color: isFavorite ? Colors.teal : Colors.grey,
-            size: 18,
-          ),
-          const SizedBox(width: 8),
-          Text(
-            isFavorite ? 'Status: Ditandai sebagai Favorit' : 'Status: Belum Favorit',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: isFavorite ? Colors.teal.shade900 : Colors.black54,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Hanya teks ini yang dirender ulang saat nilai berubah
+                ValueListenableBuilder<int>(
+                  valueListenable: _favoriteCount,
+                  builder: (context, value, child) {
+                    return Text(
+                      'Terpantau: $value Favorit',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        color: Colors.black87,
+                      ),
+                    );
+                  },
+                ),
+                Row(
+                  children: [
+                    // Tombol minus
+                    InkWell(
+                      onTap: () {
+                        if (_favoriteCount.value > 0) {
+                          _favoriteCount.value--;
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFEDE7F6),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.remove, size: 18, color: Color(0xFF512DA8)),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    // Tombol plus
+                    InkWell(
+                      onTap: () {
+                        _favoriteCount.value++;
+                      },
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFEDE7F6),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.add, size: 18, color: Color(0xFF512DA8)),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// Child 2: Mengirim aksi kembali ke parent melalui callback
-class ChildCourseActionCard extends StatelessWidget {
-  final String title;
-  final bool isFavorite;
-  final VoidCallback onFavoriteChanged;
-
-  const ChildCourseActionCard({
-    super.key,
-    required this.title,
-    required this.isFavorite,
-    required this.onFavoriteChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
-          IconButton(
-            icon: Icon(
-              isFavorite ? Icons.favorite : Icons.favorite_border,
-              color: isFavorite ? Colors.red : Colors.grey,
-            ),
-            onPressed: onFavoriteChanged,
           ),
         ],
       ),
