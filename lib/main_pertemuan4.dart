@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screens/dashboard_screen.dart';
+import 'models/student_model.dart';
 
 void main() {
   runApp(const LearningDashboardApp());
