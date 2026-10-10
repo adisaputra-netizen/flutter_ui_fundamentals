@@ -7,7 +7,6 @@ const String studentId = '2415051005';
 
 void main() {
   runApp(
-    // Menginjeksi CourseChangeNotifier ke seluruh hierarki widget tree
     ChangeNotifierProvider(
       create: (context) => CourseChangeNotifier(),
       child: const CourseExplorerApp(),
@@ -37,12 +36,14 @@ class CourseItem {
   final String code;
   final String title;
   final String status;
+  final String description;
   bool isFavorite;
 
   CourseItem({
     required this.code,
     required this.title,
     required this.status,
+    this.description = 'Pelajari konsep inti dan praktik implementasinya secara mendalam.',
     this.isFavorite = false,
   });
 }
@@ -140,7 +141,6 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Membaca state menggunakan context.watch dari Provider
     final courseNotifier = context.watch<CourseChangeNotifier>();
     final courses = courseNotifier.courses;
     final favoritesCount = courseNotifier.favoritesCount;
@@ -148,7 +148,7 @@ class HomeScreen extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16.0),
       children: [
-        // Kartu Identitas Mahasiswa
+        // Identitas Mahasiswa
         Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -167,7 +167,7 @@ class HomeScreen extends StatelessWidget {
         ),
         const SizedBox(height: 16),
 
-        // Summary Box
+        // Summary Boxes
         Row(
           children: [
             Expanded(
@@ -182,17 +182,12 @@ class HomeScreen extends StatelessWidget {
         const SizedBox(height: 16),
 
         // Daftar 3 Kursus Teratas
-        ...courses.take(3).map(
-              (item) => _buildCourseCard(
-                context,
-                item,
-              ),
-            ),
+        ...courses.take(3).map((item) => _buildCourseCard(context, item)),
 
         const SizedBox(height: 16),
 
-        // >>> WIDGET TAHAP 6: PROVIDER & CONSUMER CARD <<<
-        const Stage6ProviderConsumerCard(),
+        // >>> WIDGET TAHAP 7: NAVIGATION & SYNC CARD <<<
+        const Stage7NavigationSyncCard(),
       ],
     );
   }
@@ -227,65 +222,77 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildCourseCard(BuildContext context, CourseItem item) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF7FAFD),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFBDD8F5), width: 1.2),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                item.title,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF19426D),
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                item.status,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF00796B),
-                ),
-              ),
-            ],
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CourseDetailScreen(course: item),
           ),
-          IconButton(
-            icon: Icon(
-              item.isFavorite ? Icons.favorite : Icons.favorite_border,
-              color: item.isFavorite ? Colors.red : Colors.grey,
+        );
+      },
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF7FAFD),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: const Color(0xFFBDD8F5), width: 1.2),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.title,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF19426D),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  item.status,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF00796B),
+                  ),
+                ),
+              ],
             ),
-            // Mengirim aksi perubahan menggunakan context.read
-            onPressed: () => context.read<CourseChangeNotifier>().toggleFavorite(item),
-          ),
-        ],
+            IconButton(
+              icon: Icon(
+                item.isFavorite ? Icons.favorite : Icons.favorite_border,
+                color: item.isFavorite ? Colors.red : Colors.grey,
+              ),
+              onPressed: () => context.read<CourseChangeNotifier>().toggleFavorite(item),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-// ==================== WIDGET TAHAP 6: PROVIDER & CONSUMER ====================
-class Stage6ProviderConsumerCard extends StatelessWidget {
-  const Stage6ProviderConsumerCard({super.key});
+// ==================== WIDGET TAHAP 7: CARD DEMO NAVIGASI ====================
+class Stage7NavigationSyncCard extends StatelessWidget {
+  const Stage7NavigationSyncCard({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final mob07 = context.watch<CourseChangeNotifier>().courses.firstWhere((c) => c.code == 'MOB07');
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF90CAF9), width: 1.2),
+        border: Border.all(color: const Color(0xFFE57373), width: 1.2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -297,9 +304,9 @@ class Stage6ProviderConsumerCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Tahap 6: Provider & Consumer Pattern',
+                    'Tahap 7: Navigation & Route Sync',
                     style: TextStyle(
-                      color: Color(0xFF1565C0),
+                      color: Color(0xFFC62828),
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
                     ),
@@ -311,63 +318,152 @@ class Stage6ProviderConsumerCard extends StatelessWidget {
                   ),
                 ],
               ),
-              const Icon(Icons.hub_outlined, color: Color(0xFF1565C0), size: 22),
+              const Icon(Icons.alt_route, color: Color(0xFFC62828), size: 22),
             ],
           ),
           const SizedBox(height: 14),
-          // Menggunakan Consumer untuk membatasi rebuild hanya pada container ini
-          Consumer<CourseChangeNotifier>(
-            builder: (context, notifier, child) {
-              final mob07 = notifier.courses.firstWhere((c) => c.code == 'MOB07');
-              final isFav = mob07.isFavorite;
-
-              return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE3F2FD),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        '${mob07.title}: ${isFav ? "Favorit" : "Bukan Favorit"}',
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFEBEE),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        mob07.title,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
-                          color: Color(0xFF0D47A1),
+                          color: Color(0xFFB71C1C),
                         ),
                       ),
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: () => notifier.toggleFavorite(mob07),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: isFav ? Colors.red : const Color(0xFF1976D2),
-                        foregroundColor: Colors.white,
-                        elevation: 1,
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      Text(
+                        'Status: ${mob07.isFavorite ? "Favorit" : "Bukan Favorit"}',
+                        style: const TextStyle(fontSize: 11, color: Colors.black54),
                       ),
-                      icon: Icon(
-                        isFav ? Icons.favorite : Icons.favorite_border,
-                        size: 16,
-                      ),
-                      label: Text(
-                        isFav ? 'Batalkan' : 'Favoritkan',
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              );
-            },
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CourseDetailScreen(course: mob07),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFD32F2F),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
+                  icon: const Icon(Icons.open_in_new, size: 16),
+                  label: const Text('Buka Detail', style: TextStyle(fontSize: 12)),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 8),
           const Text(
-            'State diakses langsung via Provider/Consumer tanpa meneruskan parameter melalui constructor.',
+            'Uji perpindahan rute ke detail layar dan verifikasi sinkronisasi state bolak-balik.',
             style: TextStyle(fontSize: 11, color: Colors.black54),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ==================== HALAMAN DETAIL KURSUS (TAHAP 7) ====================
+class CourseDetailScreen extends StatelessWidget {
+  final CourseItem course;
+
+  const CourseDetailScreen({super.key, required this.course});
+
+  @override
+  Widget build(BuildContext context) {
+    // Sinkronisasi status favorit secara live via Provider
+    final notifier = context.watch<CourseChangeNotifier>();
+    final liveCourse = notifier.courses.firstWhere((c) => c.code == course.code);
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF1976D2),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          liveCourse.title,
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFEBF3FC),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${liveCourse.code} • ${liveCourse.status.toUpperCase()}',
+                    style: const TextStyle(
+                      color: Color(0xFF1976D2),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    liveCourse.title,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF19426D),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    liveCourse.description,
+                    style: const TextStyle(fontSize: 14, color: Colors.black87),
+                  ),
+                ],
+              ),
+            ),
+            const Spacer(),
+            ElevatedButton.icon(
+              onPressed: () {
+                context.read<CourseChangeNotifier>().toggleFavorite(liveCourse);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: liveCourse.isFavorite ? Colors.red : const Color(0xFF1976D2),
+                foregroundColor: Colors.white,
+                minimumSize: const Size(double.infinity, 50),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              icon: Icon(liveCourse.isFavorite ? Icons.favorite : Icons.favorite_border),
+              label: Text(
+                liveCourse.isFavorite ? 'Hapus dari Favorit' : 'Tambahkan ke Favorit',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -390,6 +486,14 @@ class CoursesScreen extends StatelessWidget {
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
           child: ListTile(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CourseDetailScreen(course: item),
+                ),
+              );
+            },
             title: Text(item.title, style: const TextStyle(fontWeight: FontWeight.bold)),
             subtitle: Text('${item.code} • Status: ${item.status}'),
             trailing: IconButton(
@@ -426,6 +530,14 @@ class FavoritesScreen extends StatelessWidget {
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
           child: ListTile(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CourseDetailScreen(course: item),
+                ),
+              );
+            },
             title: Text(item.title, style: const TextStyle(fontWeight: FontWeight.bold)),
             subtitle: Text(item.code),
             trailing: IconButton(
