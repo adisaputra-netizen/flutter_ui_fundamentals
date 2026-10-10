@@ -57,13 +57,13 @@ class HomeScreen extends StatelessWidget {
 
         const SizedBox(height: 16),
 
-        // Kartu Penanda Tahap 8
+        // Kartu Penanda Tahap 10: Repository Pattern
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFF43A047), width: 1.2),
+            border: Border.all(color: const Color(0xFF8E24AA), width: 1.2),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,9 +75,9 @@ class HomeScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Tahap 8: Refactoring & Architecture Clean-up',
+                        'Tahap 10: Repository Pattern',
                         style: TextStyle(
-                          color: Color(0xFF2E7D32),
+                          color: Color(0xFF6A1B9A),
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                         ),
@@ -89,24 +89,28 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const Icon(Icons.folder_special, color: Color(0xFF2E7D32), size: 22),
+                  const Icon(Icons.layers_outlined, color: Color(0xFF6A1B9A), size: 22),
                 ],
               ),
               const SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE8F5E9),
+                  color: const Color(0xFFF3E5F5),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Row(
                   children: [
-                    Icon(Icons.check_circle, size: 16, color: Color(0xFF2E7D32)),
+                    Icon(Icons.check_circle, size: 16, color: Color(0xFF6A1B9A)),
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Pemisahan models, providers, dan screens selesai.',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF1B5E20)),
+                        'Provider kini hanya mengakses data melalui CourseRepository.',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF4A148C),
+                        ),
                       ),
                     ),
                   ],

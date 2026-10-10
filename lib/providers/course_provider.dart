@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import '../models/course_item.dart';
+import '../services/course_service.dart';
+import '../repositories/course_repository.dart';
 
 class CourseProvider extends ChangeNotifier {
-  final List<CourseItem> _courses = [
-    CourseItem(code: 'GIT01', title: 'Git & GitHub', status: 'done', isFavorite: true),
-    CourseItem(code: 'MOB01', title: 'Dart Fundamentals', status: 'done', isFavorite: true),
-    CourseItem(code: 'MOB07', title: 'State Management', status: 'active', isFavorite: false),
-    CourseItem(code: 'MOB04', title: 'Responsive Layout', status: 'active', isFavorite: false),
-    CourseItem(code: 'MOB05', title: 'Navigation & Routing', status: 'planned', isFavorite: false),
-  ];
+  final CourseRepository _repository;
+  late List<CourseItem> _courses;
+
+  // Provider sekarang hanya berkomunikasi dengan Repository
+  CourseProvider({CourseRepository? repository})
+      : _repository = repository ?? CourseRepository(CourseService()) {
+    _courses = _repository.getCourses();
+  }
 
   List<CourseItem> get courses => _courses;
   int get favoritesCount => _courses.where((c) => c.isFavorite).length;
