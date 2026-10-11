@@ -10,8 +10,8 @@ class CourseDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final notifier = context.watch<CourseProvider>();
-    final liveCourse = notifier.courses.firstWhere((c) => c.code == course.code);
+    final provider = context.watch<CourseProvider>();
+    final isFav = provider.isFavorite(course.code);
 
     return Scaffold(
       appBar: AppBar(
@@ -21,7 +21,7 @@ class CourseDetailScreen extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          liveCourse.title,
+          course.title,
           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
@@ -41,7 +41,7 @@ class CourseDetailScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${liveCourse.code} • ${liveCourse.status.toUpperCase()}',
+                    '${course.code} • ${course.status.toUpperCase()}',
                     style: const TextStyle(
                       color: Color(0xFF1976D2),
                       fontWeight: FontWeight.bold,
@@ -50,7 +50,7 @@ class CourseDetailScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    liveCourse.title,
+                    course.title,
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -59,7 +59,7 @@ class CourseDetailScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    liveCourse.description,
+                    course.description,
                     style: const TextStyle(fontSize: 14, color: Colors.black87),
                   ),
                 ],
@@ -68,17 +68,17 @@ class CourseDetailScreen extends StatelessWidget {
             const Spacer(),
             ElevatedButton.icon(
               onPressed: () {
-                context.read<CourseProvider>().toggleFavorite(liveCourse);
+                context.read<CourseProvider>().toggleFavorite(course.code);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: liveCourse.isFavorite ? Colors.red : const Color(0xFF1976D2),
+                backgroundColor: isFav ? Colors.red : const Color(0xFF1976D2),
                 foregroundColor: Colors.white,
                 minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
-              icon: Icon(liveCourse.isFavorite ? Icons.favorite : Icons.favorite_border),
+              icon: Icon(isFav ? Icons.favorite : Icons.favorite_border),
               label: Text(
-                liveCourse.isFavorite ? 'Hapus dari Favorit' : 'Tambahkan ke Favorit',
+                isFav ? 'Hapus dari Favorit' : 'Tambahkan ke Favorit',
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),

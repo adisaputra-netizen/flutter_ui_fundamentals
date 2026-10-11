@@ -90,13 +90,13 @@ class HomeScreen extends StatelessWidget {
 
         const SizedBox(height: 16),
 
-        // Kartu Penanda Tahap 12
+          // Kartu Penanda Tahap 13: Shared Favorites State
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFF1E88E5), width: 1.2),
+            border: Border.all(color: const Color(0xFFD81B60), width: 1.2),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,9 +108,9 @@ class HomeScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Tahap 12: Refactor Struktur Folder',
+                        'Tahap 13: Shared Favorites State',
                         style: TextStyle(
-                          color: Color(0xFF1565C0),
+                          color: Color(0xFFC2185B),
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                         ),
@@ -122,27 +122,27 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const Icon(Icons.account_tree_outlined, color: Color(0xFF1565C0), size: 22),
+                  const Icon(Icons.favorite, color: Color(0xFFC2185B), size: 22),
                 ],
               ),
               const SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE3F2FD),
+                  color: const Color(0xFFFCE4EC),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Row(
                   children: [
-                    Icon(Icons.check_circle, size: 16, color: Color(0xFF1565C0)),
+                    Icon(Icons.check_circle, size: 16, color: Color(0xFFC2185B)),
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Pemisahan Separation of Concerns & modularisasi widgets tuntas.',
+                        'State favorit konsisten di seluruh screen (List, Detail, Favorites).',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF0D47A1),
+                          color: Color(0xFF880E4F),
                         ),
                       ),
                     ),

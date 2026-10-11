@@ -8,13 +8,16 @@ class CoursesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final courses = context.watch<CourseProvider>().courses;
+    final provider = context.watch<CourseProvider>();
+    final courses = provider.courses;
 
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: courses.length,
       itemBuilder: (context, index) {
         final item = courses[index];
+        final isFav = provider.isFavorite(item.code);
+
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
           child: ListTile(
@@ -30,10 +33,10 @@ class CoursesScreen extends StatelessWidget {
             subtitle: Text('${item.code} • Status: ${item.status}'),
             trailing: IconButton(
               icon: Icon(
-                item.isFavorite ? Icons.favorite : Icons.favorite_border,
-                color: item.isFavorite ? Colors.red : Colors.grey,
+                isFav ? Icons.favorite : Icons.favorite_border,
+                color: isFav ? Colors.red : Colors.grey,
               ),
-              onPressed: () => context.read<CourseProvider>().toggleFavorite(item),
+              onPressed: () => context.read<CourseProvider>().toggleFavorite(item.code),
             ),
           ),
         );

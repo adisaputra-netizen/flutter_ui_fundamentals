@@ -11,6 +11,9 @@ class CourseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<CourseProvider>();
+    final isFav = provider.isFavorite(item.code);
+
     return InkWell(
       onTap: () {
         Navigator.push(
@@ -56,10 +59,10 @@ class CourseCard extends StatelessWidget {
             ),
             IconButton(
               icon: Icon(
-                item.isFavorite ? Icons.favorite : Icons.favorite_border,
-                color: item.isFavorite ? Colors.red : Colors.grey,
+                isFav ? Icons.favorite : Icons.favorite_border,
+                color: isFav ? Colors.red : Colors.grey,
               ),
-              onPressed: () => context.read<CourseProvider>().toggleFavorite(item),
+              onPressed: () => context.read<CourseProvider>().toggleFavorite(item.code),
             ),
           ],
         ),

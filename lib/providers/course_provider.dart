@@ -8,14 +8,25 @@ class CourseProvider extends ChangeNotifier {
 
   CourseProvider({CourseRepository? repository})
       : repository = repository ?? CourseRepository(CourseService()) {
-    loadCourses(); // Ambil data secara asinkron saat inisialisasi
+    loadCourses();
   }
 
   List<CourseItem> courses = [];
+  final Set<String> _favorites = {'GIT01', 'MOB01'}; // Inisial kode materi favorit
   bool isLoading = false;
   String? error;
 
-  int get favoritesCount => courses.where((c) => c.isFavorite).length;
+  List<String> get favorites => _favorites.toList();
+  int get favoritesCount => _favorites.length;
+
+  bool isFavorite(String code) => _favorites.contains(code);
+
+  void toggleFavorite(String code) {
+    _favorites.contains(code)
+        ? _favorites.remove(code)
+        : _favorites.add(code);
+    notifyListeners();
+  }
 
   Future<void> loadCourses() async {
     isLoading = true;
@@ -30,10 +41,5 @@ class CourseProvider extends ChangeNotifier {
       isLoading = false;
       notifyListeners();
     }
-  }
-
-  void toggleFavorite(CourseItem course) {
-    course.isFavorite = !course.isFavorite;
-    notifyListeners();
   }
 }

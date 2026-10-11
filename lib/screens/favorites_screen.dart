@@ -8,11 +8,13 @@ class FavoritesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final favList = context.watch<CourseProvider>().courses.where((c) => c.isFavorite).toList();
+    final provider = context.watch<CourseProvider>();
+    final favList = provider.courses.where((c) => provider.isFavorite(c.code)).toList();
 
     if (favList.isEmpty) {
       return const Center(child: Text('Belum ada materi favorit.'));
     }
+
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: favList.length,
@@ -33,7 +35,7 @@ class FavoritesScreen extends StatelessWidget {
             subtitle: Text(item.code),
             trailing: IconButton(
               icon: const Icon(Icons.favorite, color: Colors.red),
-              onPressed: () => context.read<CourseProvider>().toggleFavorite(item),
+              onPressed: () => context.read<CourseProvider>().toggleFavorite(item.code),
             ),
           ),
         );
