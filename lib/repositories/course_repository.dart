@@ -6,7 +6,9 @@ class CourseRepository {
 
   CourseRepository(this.service);
 
-  List<CourseItem> getCourses() {
+  Future<List<CourseItem>> getCourses() async {
+    // Simulasi delay request data selama 1.5 detik
+    await Future.delayed(const Duration(milliseconds: 1500));
     return service.getInitialCourses();
   }
 }

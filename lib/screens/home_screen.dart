@@ -52,18 +52,52 @@ class HomeScreen extends StatelessWidget {
         ),
         const SizedBox(height: 16),
 
-        // 3 Kursus Teratas
-        ...courses.take(3).map((item) => _buildCourseCard(context, item)),
+        // Penanganan Async State: Loading, Error, atau List Data
+        if (provider.isLoading)
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 32.0),
+              child: Column(
+                children: [
+                  CircularProgressIndicator(color: Color(0xFF1976D2)),
+                  SizedBox(height: 12),
+                  Text('Memuat data kursus...', style: TextStyle(color: Colors.grey)),
+                ],
+              ),
+            ),
+          )
+        else if (provider.error != null)
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFEBEE),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.red),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Terjadi kesalahan: ${provider.error}',
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
+              ],
+            ),
+          )
+        else
+          ...courses.take(3).map((item) => _buildCourseCard(context, item)),
 
         const SizedBox(height: 16),
 
-        // Kartu Penanda Tahap 10: Repository Pattern
+        // Kartu Penanda Tahap 11
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFF8E24AA), width: 1.2),
+            border: Border.all(color: const Color(0xFF00897B), width: 1.2),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,9 +109,9 @@ class HomeScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Tahap 10: Repository Pattern',
+                        'Tahap 11: Provider Async State',
                         style: TextStyle(
-                          color: Color(0xFF6A1B9A),
+                          color: Color(0xFF00695C),
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                         ),
@@ -89,27 +123,27 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const Icon(Icons.layers_outlined, color: Color(0xFF6A1B9A), size: 22),
+                  const Icon(Icons.sync_outlined, color: Color(0xFF00695C), size: 22),
                 ],
               ),
               const SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF3E5F5),
+                  color: const Color(0xFFE0F2F1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Row(
                   children: [
-                    Icon(Icons.check_circle, size: 16, color: Color(0xFF6A1B9A)),
+                    Icon(Icons.check_circle, size: 16, color: Color(0xFF00695C)),
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Provider kini hanya mengakses data melalui CourseRepository.',
+                        'State isLoading, success, dan error terkelola secara reaktif.',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF4A148C),
+                          color: Color(0xFF004D40),
                         ),
                       ),
                     ),
