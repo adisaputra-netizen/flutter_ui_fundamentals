@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/course_item.dart';
 import '../providers/course_provider.dart';
-import 'course_detail_screen.dart';
+import '../widgets/course_card.dart';
 
 class HomeScreen extends StatelessWidget {
   final String studentId;
@@ -52,7 +51,7 @@ class HomeScreen extends StatelessWidget {
         ),
         const SizedBox(height: 16),
 
-        // Penanganan Async State: Loading, Error, atau List Data
+        // Async State Handling
         if (provider.isLoading)
           const Center(
             child: Padding(
@@ -87,17 +86,17 @@ class HomeScreen extends StatelessWidget {
             ),
           )
         else
-          ...courses.take(3).map((item) => _buildCourseCard(context, item)),
+          ...courses.take(3).map((item) => CourseCard(item: item)),
 
         const SizedBox(height: 16),
 
-        // Kartu Penanda Tahap 11
+        // Kartu Penanda Tahap 12
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFF00897B), width: 1.2),
+            border: Border.all(color: const Color(0xFF1E88E5), width: 1.2),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -109,9 +108,9 @@ class HomeScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Tahap 11: Provider Async State',
+                        'Tahap 12: Refactor Struktur Folder',
                         style: TextStyle(
-                          color: Color(0xFF00695C),
+                          color: Color(0xFF1565C0),
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                         ),
@@ -123,27 +122,27 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const Icon(Icons.sync_outlined, color: Color(0xFF00695C), size: 22),
+                  const Icon(Icons.account_tree_outlined, color: Color(0xFF1565C0), size: 22),
                 ],
               ),
               const SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE0F2F1),
+                  color: const Color(0xFFE3F2FD),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Row(
                   children: [
-                    Icon(Icons.check_circle, size: 16, color: Color(0xFF00695C)),
+                    Icon(Icons.check_circle, size: 16, color: Color(0xFF1565C0)),
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'State isLoading, success, dan error terkelola secara reaktif.',
+                        'Pemisahan Separation of Concerns & modularisasi widgets tuntas.',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF004D40),
+                          color: Color(0xFF0D47A1),
                         ),
                       ),
                     ),
@@ -179,61 +178,6 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildCourseCard(BuildContext context, CourseItem item) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => CourseDetailScreen(course: item)),
-        );
-      },
-      borderRadius: BorderRadius.circular(10),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF7FAFD),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: const Color(0xFFBDD8F5), width: 1.2),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.title,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF19426D),
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  item.status,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF00796B),
-                  ),
-                ),
-              ],
-            ),
-            IconButton(
-              icon: Icon(
-                item.isFavorite ? Icons.favorite : Icons.favorite_border,
-                color: item.isFavorite ? Colors.red : Colors.grey,
-              ),
-              onPressed: () => context.read<CourseProvider>().toggleFavorite(item),
-            ),
-          ],
-        ),
       ),
     );
   }
