@@ -22,7 +22,7 @@ class HomeScreen extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16.0),
       children: [
-        // Identitas Mahasiswa
+        // Identitas Mahasiswa (Poin 63)
         Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -51,7 +51,7 @@ class HomeScreen extends StatelessWidget {
         ),
         const SizedBox(height: 16),
 
-        // Async State Handling
+        // Penanganan Async State: Loading, Error, Success (Poin 60 & 61)
         if (provider.isLoading)
           const Center(
             child: Padding(
@@ -86,72 +86,8 @@ class HomeScreen extends StatelessWidget {
             ),
           )
         else
+          // Menampilkan 3 Kursus Teratas via CourseCard modular
           ...courses.take(3).map((item) => CourseCard(item: item)),
-
-        const SizedBox(height: 16),
-
-          // Kartu Penanda Tahap 13: Shared Favorites State
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFD81B60), width: 1.2),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Tahap 13: Shared Favorites State',
-                        style: TextStyle(
-                          color: Color(0xFFC2185B),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '$studentId • $studentName',
-                        style: const TextStyle(color: Colors.grey, fontSize: 12),
-                      ),
-                    ],
-                  ),
-                  const Icon(Icons.favorite, color: Color(0xFFC2185B), size: 22),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFCE4EC),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(Icons.check_circle, size: 16, color: Color(0xFFC2185B)),
-                    SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'State favorit konsisten di seluruh screen (List, Detail, Favorites).',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF880E4F),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
       ],
     );
   }
