@@ -12,7 +12,7 @@ class CourseProvider extends ChangeNotifier {
   }
 
   List<CourseItem> courses = [];
-  final Set<String> _favorites = {'GIT01', 'MOB01'}; // Inisial kode materi favorit
+  final Set<String> _favorites = {'GIT01', 'MOB01'};
   bool isLoading = false;
   String? error;
 
@@ -36,7 +36,7 @@ class CourseProvider extends ChangeNotifier {
     try {
       courses = await repository.getCourses();
     } catch (e) {
-      error = e.toString();
+      error = e.toString().replaceAll('Exception: ', '');
     } finally {
       isLoading = false;
       notifyListeners();

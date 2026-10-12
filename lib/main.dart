@@ -9,13 +9,10 @@ import 'screens/favorites_screen.dart';
 const String studentName = 'Kadek Adi Saputra';
 const String studentId = '2415051005';
 
+
 void main() {
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) => CourseProvider(),
-      child: const CourseExplorerApp(),
-    ),
-  );
+  // ChangeNotifierProvider tidak ditaruh di sini lagi
+  runApp(const CourseExplorerApp());
 }
 
 class CourseExplorerApp extends StatelessWidget {
@@ -23,14 +20,14 @@ class CourseExplorerApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Course Explorer v2',
-      theme: ThemeData(
-        scaffoldBackgroundColor: const Color(0xFFF7FAFD),
-        useMaterial3: true,
+    
+    return ChangeNotifierProvider(
+      create: (context) => CourseProvider(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Course Explorer v2',
+        home: const MainShellPage(),
       ),
-      home: const MainShellPage(),
     );
   }
 }
