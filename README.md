@@ -31,3 +31,18 @@ Tanggung jawab folder:
 - `providers/`: Pengelolaan state dan notifikasi perubahan data.
 - `screens/`: Antarmuka layar aplikasi.
 - `widgets/`: Komponen UI reusable.
+
+## Dokumentasi Endpoint REST API (Tahap 1)
+
+- **Base URL**: `https://course-api-pearl.vercel.app`
+- **Endpoint GET**: `https://course-api-pearl.vercel.app/courses`
+- **HTTP Method**: GET
+- **Status Code**: 200 OK
+- **Resource**: courses
+
+### Field JSON:
+1. `id` (integer): ID unik course
+2. `code` (string): Kode mata kuliah (contoh: MOB01)
+3. `title` (string): Judul mata kuliah
+4. `credits` (integer): Bobot SKS
+5. `status` (string): Status mata kuliah (planned / active / done)
