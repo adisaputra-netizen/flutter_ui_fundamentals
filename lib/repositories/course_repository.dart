@@ -1,14 +1,11 @@
 import '../models/course_item.dart';
-import '../services/course_service.dart';
+import '../services/course_api_service.dart';
 
 class CourseRepository {
-  final CourseService service;
+  CourseRepository(this.apiService);
+  final CourseApiService apiService;
 
-  CourseRepository(this.service);
-
-  Future<List<CourseItem>> getCourses() async {
-    // Simulasi delay request data selama 1.5 detik
-    await Future.delayed(const Duration(milliseconds: 1500));
-    return service.getInitialCourses();
+  Future<List<Course>> getCourses() async {
+    return await apiService.getCourses();
   }
 }
