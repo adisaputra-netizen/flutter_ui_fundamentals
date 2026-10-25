@@ -46,4 +46,17 @@ class CourseProvider extends ChangeNotifier {
     }
     notifyListeners();
   }
+
+  // Tambahkan method ini di dalam class CourseProvider:
+  Future<bool> addCourse(Course course) async {
+    try {
+      await _repository.createCourse(course);
+      await loadCourses(); // Poin 40: Refresh list setelah berhasil
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
 }
