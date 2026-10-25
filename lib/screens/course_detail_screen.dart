@@ -1,20 +1,73 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/course_item.dart';
-import 'edit_course_screen.dart'; // 1. Pastikan file edit ini di-import
+import '../providers/course_provider.dart';
+import 'edit_course_screen.dart';
 
 class CourseDetailScreen extends StatelessWidget {
   final Course course;
 
   const CourseDetailScreen({super.key, required this.course});
 
+  // Fungsi konfirmasi dialog hapus
+  Future<void> _confirmDelete(BuildContext context) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Hapus Course'),
+        content: Text('Yakin ingin menghapus course "${course.title}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Hapus'),
+          ),
+        ],
+      ),
+    );
+
+    // Jika pengguna memilih Batal
+    if (confirm != true) return;
+
+    // Poin 48: Jalankan DELETE
+    final provider = context.read<CourseProvider>();
+    final success = await provider.deleteCourse(course);
+
+    // Poin 50: Periksa context.mounted setelah await
+    if (!context.mounted) return;
+
+    if (success) {
+      // Poin 49: Tampilkan SnackBar sukses
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Course berhasil dihapus!'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      // Kembali ke layar sebelumnya (CoursesScreen)
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal menghapus: ${provider.error ?? "Terjadi kesalahan"}'),
+          backgroundColor: Colors.grey[800],
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // 2. DI SINI POSISINYA (Menggantikan AppBar lama)
       appBar: AppBar(
         title: Text(course.title),
         backgroundColor: const Color(0xFF1976D2),
         actions: [
+          // Tombol Edit
           IconButton(
             icon: const Icon(Icons.edit),
             tooltip: 'Edit Course',
@@ -26,6 +79,12 @@ class CourseDetailScreen extends StatelessWidget {
                 ),
               );
             },
+          ),
+          // Poin 46: Tombol Delete
+          IconButton(
+            icon: const Icon(Icons.delete),
+            tooltip: 'Hapus Course',
+            onPressed: () => _confirmDelete(context),
           ),
         ],
       ),
