@@ -10,6 +10,7 @@ import 'services/course_api_service.dart';
 import 'screens/home_screen.dart';
 import 'screens/courses_screen.dart';
 import 'screens/favorites_screen.dart';
+import 'services/course_supabase_service.dart';
 
 const String studentName = 'Kadek Adi Saputra';
 const String studentId = '2415051005';
@@ -26,8 +27,8 @@ Future<void> main() async {
   );
 
   // Poin 62: Perakitan service -> repository -> provider tetap berjalan
-  final apiService = CourseApiService(apiBaseUrl);
-  final repository = CourseRepository(apiService);
+  final dataSource = CourseSupabaseService();
+  final repository = CourseRepository(dataSource);
 
   runApp(
     ChangeNotifierProvider(
@@ -36,6 +37,8 @@ Future<void> main() async {
     ),
   );
 }
+
+
 
 class CourseExplorerApp extends StatelessWidget {
   const CourseExplorerApp({super.key});
