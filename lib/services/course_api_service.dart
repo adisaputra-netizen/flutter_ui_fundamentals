@@ -1,12 +1,13 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/course_item.dart';
+import 'course_data_source.dart'; // 1. Import kontrak data source
 
-class CourseApiService {
+class CourseApiService implements CourseDataSource { // 2. Implements CourseDataSource
   CourseApiService(this.baseUrl);
   final String baseUrl;
 
-  // Method GET (sudah ada)
+  @override
   Future<List<Course>> getCourses() async {
     final response = await http.get(Uri.parse('$baseUrl/courses'));
 
@@ -20,7 +21,7 @@ class CourseApiService {
         .toList();
   }
 
-  // Method POST untuk Tahap 6
+  @override
   Future<Course> createCourse(Course course) async {
     final response = await http.post(
       Uri.parse('$baseUrl/courses'),
@@ -37,7 +38,7 @@ class CourseApiService {
     throw Exception('Gagal membuat course (HTTP ${response.statusCode})');
   }
 
-  // Tambahkan method ini di CourseApiService
+  @override
   Future<void> updateCourse(int id, Course course) async {
     final response = await http.put(
       Uri.parse('$baseUrl/courses/$id'),
@@ -50,7 +51,7 @@ class CourseApiService {
     }
   }
 
-  // Tambahkan method ini di CourseApiService
+  @override
   Future<void> deleteCourse(int id) async {
     final response = await http.delete(
       Uri.parse('$baseUrl/courses/$id'),

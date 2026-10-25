@@ -1,23 +1,19 @@
 import '../models/course_item.dart';
-import '../services/course_api_service.dart';
+import '../services/course_data_source.dart';
 
 class CourseRepository {
-  CourseRepository(this.apiService);
-  final CourseApiService apiService;
+  CourseRepository(this.dataSource);
 
-  Future<List<Course>> getCourses() async {
-    return await apiService.getCourses();
-  }
+  final CourseDataSource dataSource;
 
-  Future<Course> createCourse(Course course) async {
-    return await apiService.createCourse(course);
-  }
+  Future<List<Course>> getCourses() => dataSource.getCourses();
 
-  Future<void> updateCourse(int id, Course course) async {
-    await apiService.updateCourse(id, course);
-  }
+  Future<Course> createCourse(Course course) =>
+      dataSource.createCourse(course);
 
-  Future<void> deleteCourse(int id) async {
-    await apiService.deleteCourse(id);
-  }
+  Future<void> updateCourse(int id, Course course) =>
+      dataSource.updateCourse(id, course);
+
+  Future<void> deleteCourse(int id) =>
+      dataSource.deleteCourse(id);
 }
