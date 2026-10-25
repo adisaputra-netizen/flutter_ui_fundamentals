@@ -20,9 +20,19 @@ class CourseSupabaseService implements CourseDataSource {
   }
 
   // Method mutasi diisi UnimplementedError() sementara sesuai instruksi modul
-  @override
-  Future<Course> createCourse(Course course) =>
-      throw UnimplementedError();
+ @override
+  Future<Course> createCourse(Course course) async {
+    // Pastikan tidak mengirim ID jika bernilai null agar digenerate otomatis oleh identity column di database
+    final courseData = course.toJson()..removeWhere((key, value) => key == 'id' && value == null);
+
+    final row = await supabase
+        .from('courses')
+        .insert(courseData)
+        .select()
+        .single();
+
+    return Course.fromJson(row);
+  }
 
   @override
   Future<void> updateCourse(int id, Course course) =>
