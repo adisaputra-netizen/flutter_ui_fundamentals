@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart'; // Import Supabase
 
+import 'constants/supabase_constants.dart';
 import 'models/course_item.dart';
 import 'providers/course_provider.dart';
 import 'repositories/course_repository.dart';
@@ -9,14 +11,21 @@ import 'screens/home_screen.dart';
 import 'screens/courses_screen.dart';
 import 'screens/favorites_screen.dart';
 
-// Identitas Mahasiswa
 const String studentName = 'Kadek Adi Saputra';
 const String studentId = '2415051005';
-
-// Base URL (tanpa /courses di belakangnya)
 const String apiBaseUrl = 'https://course-api-pearl.vercel.app';
 
-void main() {
+Future<void> main() async {
+  // Poin 61: Pastikan binding engine Flutter terinisialisasi
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Poin 61 & 63: Inisialisasi Supabase Client dengan anonKey
+  await Supabase.initialize(
+    url: SupabaseConstants.url,
+    anonKey: SupabaseConstants.anonKey,
+  );
+
+  // Poin 62: Perakitan service -> repository -> provider tetap berjalan
   final apiService = CourseApiService(apiBaseUrl);
   final repository = CourseRepository(apiService);
 
