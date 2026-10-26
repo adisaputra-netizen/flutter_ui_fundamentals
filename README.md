@@ -46,3 +46,62 @@ Tanggung jawab folder:
 3. `title` (string): Judul mata kuliah
 4. `credits` (integer): Bobot SKS
 5. `status` (string): Status mata kuliah (planned / active / done)
+
+# Course Explorer v2 - Course Data Manager
+
+Aplikasi manajemen mata kuliah berbasis Flutter dengan arsitektur bersih (Clean Architecture / Repository Pattern) yang terintegrasi dengan REST API dan backend database Supabase PostgreSQL.
+
+**Identitas Mahasiswa:**
+* **Nama:** Kadek Adi Saputra
+* **NIM:** 2415051005
+* **Program Studi:** Pendidikan Teknik Informatika
+* **Institusi:** Universitas Pendidikan Ganesha
+
+---
+
+## Fitur Utama
+* **Full CRUD Supabase:** Membaca (SELECT), menambah (INSERT), memperbarui (UPDATE), dan menghapus (DELETE) data mata kuliah langsung ke database PostgreSQL Supabase.
+* **Clean Architecture & Repository Pattern:** Pemisahan ketat antara antarmuka (UI), state management (Provider), repositori, dan sumber data (DataSource Interface & Service).
+* **State Management & Resilience:** Penanganan 4 kondisi UI secara reaktif (Loading, Empty, Error dengan fitur Coba Lagi/Retry, dan Data View).
+* **Keamanan & Integritas Data:** Dilindungi oleh Row Level Security (RLS) dan database constraints (UNIQUE & CHECK constraints).
+* **Navigasi Responsif & Favorit:** Navigasi adaptif dan fitur favorit berbasis kode mata kuliah yang konsisten di semua layar.
+
+---
+
+## Arsitektur Aplikasi
+```text
+lib/
+├── constants/      # Kredensial & konfigurasi Supabase
+├── models/         # Entity & serialisasi JSON Course
+├── providers/      # State management (ChangeNotifierProvider)
+├── repositories/   # CourseRepository (abstraksi bisnis)
+├── services/       # CourseDataSource, CourseApiService, CourseSupabaseService
+└── screens/        # Komponen tampilan antarmuka (UI)
+
+Cara Menjalankan Aplikasi
+Clone repository ini:
+
+Bash
+git clone [https://github.com/adisaputra-netizen/flutter_ui_fundamentals.git](https://github.com/adisaputra-netizen/flutter_ui_fundamentals.git)
+cd flutter_ui_fundamentals
+Pasang dependensi Flutter:
+
+Bash
+flutter pub get
+Konfigurasikan URL dan Anon Key Supabase pada file lib/constants/supabase_constants.dart.
+
+Jalankan aplikasi:
+
+Bash
+flutter run
+
+---
+
+**2. Commit dan Push README.md (Poin 97 & 98)**
+
+Buka terminal di root proyek, lalu jalankan:
+
+```bash
+git add README.md
+git commit -m "docs: tambahkan dokumentasi lengkap README.md"
+git push
