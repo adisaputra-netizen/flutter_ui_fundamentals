@@ -13,10 +13,13 @@ class AuthService {
   Future<AuthResponse> register({
     required String email,
     required String password,
+    String name = '',
+    String role = 'seeker',
   }) async {
     return await _client.auth.signUp(
       email: email,
       password: password,
+      data: {'name': name, 'role': role},
     );
   }
 
